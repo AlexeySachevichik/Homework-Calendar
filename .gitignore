@@ -1,4 +1,4 @@
 *.pdf
 *.zip
-*.ttf
-*.png
+#*.ttf
+#*.png
