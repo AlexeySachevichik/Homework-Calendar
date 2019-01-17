@@ -1,0 +1,33 @@
+%block_radius {
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+@mixin placeholder($c) {
+	&::-webkit-input-placeholder {
+		color: $c;
+		transition-duration: $animation;
+	}
+	&::-moz-placeholder {
+		color: $c;
+		transition-duration: $animation;
+	}
+	&::-ms-input-placeholder {
+		color: $c;
+		transition-duration: $animation;
+	}
+	&:-ms-input-placeholder {
+		color: $c;
+		transition-duration: $animation;
+	}
+	&::placeholder {
+		color: $c;
+		transition-duration: $animation;
+	}
+
+	&:focus::-webkit-input-placeholder { color: transparent; }
+	&:focus::-moz-placeholder { color: transparent; }
+	&:focus::-ms-input-placeholder { color: transparent; }
+	&:focus:-ms-input-placeholder { color: transparent; }
+	&:focus::placeholder { color: transparent; }
+}
