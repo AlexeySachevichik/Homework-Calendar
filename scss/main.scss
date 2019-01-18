@@ -3,8 +3,10 @@
 
 
 $fonts: "Roboto", "Arial", sans-serif;
-$shadow:  0 1px 2px rgba(0,0,0,0.3);
+$shadow01: 0 1px 2px rgba(0,0,0,0.3);
+$shadow02: 0 2px 5px rgba(0,0,0,0.2);
 $animation: 0.2s;
+
 
 $font01: #0b0b0b;
 $font02: #666666;
@@ -22,227 +24,300 @@ $back02: #f4f4f4;
 
 $border01: #e4e4e4;
 
+$succses: #52ac62;
+$error: #cc3333;
 
 @import "extends";
 
 
 body {
-	font-family: $fonts;
-	font-weight: 400;
-	font-size: 16px;
-	line-height: 18px;
-	color: $font01;
+    font-family: $fonts;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 18px;
+    color: $font01;
 }
 
 .wrapper {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	width: 100%;
-	height: 100%;
-	min-height: 600px;
-	background: $back01;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+    background: $back01;
 
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-content: stretch;
-		width: 100%;
-		/*max-width: 1300px;*/
-		height: 100%;
-		margin: 0 auto;
-	}
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-content: stretch;
+        width: 100%;
+        /*max-width: 1300px;*/
+        height: 100%;
+        margin: 0 auto;
+    }
+}
+
+input {
+    @extend %block_radius;
+    @include placeholder($font04);
+    box-shadow: inset $shadow01;
+    padding: 7px 12px;
+    border: 1px solid $font04;
+    background: $back01;
+    font-family: $fonts;
+    font-weight: 400;
+    font-size: 16px;
+}
+
+button.btn-form {
+    @extend %block_radius;
+    margin-right: 10px;
+    border: 1px solid $font04;
+    background: $back02;
+    cursor: pointer;
+    transition-duration: $animation;
+    font-family: $fonts;
+    font-weight: 400;
+    font-size: 14px;
+
+    &:hover { background: $back02 - 10; }
+    &:last-child { margin-right: 0; }
+}
+
+button.btn-header {
+    @extend %block_radius;
+    display: block;
+    padding: 7px 12px;
+    border: none;
+    background: $acent01;
+    color: $back01;
+    cursor: pointer;
+    font-family: $fonts;
+    font-weight: 400;
+    font-size: 16px;
+    text-shadow: $shadow01;
+    box-shadow: $shadow01;
+    transition-duration: $animation;
+
+    &:hover { background: $acent01 - 15; }
+}
+
+p.status {
+    font-size: 14px;
+    color: $font03;
+
+    &.succses {
+        color: $succses;
+    }
+
+    &.error {
+        color: $error;
+    }
 }
 
 header {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 20px;
-	background: $back02;
-	box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: $back02;
+    box-shadow: $shadow02;
 
-	.button-group,
-	.button-group button,
-	.search-group {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+    .button-group,
+    .button-group button,
+    .search-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
 
-	.button-group {
+    .button-group {
 
-		div {
-			margin-right: 12px;
-			&:last-child { margin-right: 0; }
-		}
+        div {
+            position: relative;
+            margin-right: 12px;
+            &:last-child { margin-right: 0; }
+        }
 
-		button {
-			@extend %block_radius;
-			display: block;
-			padding: 7px 12px;
-			border: none;
-			background: $acent01;
-			color: $back01;
-			cursor: pointer;
-			font-family: $fonts;
-			font-weight: 400;
-			font-size: 16px;
-			text-shadow: $shadow;
-			box-shadow: $shadow;
-			transition-duration: $animation;
 
-			&:hover { background: $acent01 - 15; }
-		}
-	}
+        .popup-fast-add {
+            display: none;
+            position: absolute;
+            top: 45px;
+            left: 0;
+            width: 400px;
+            background: $back01;
+            padding: 20px 25px;
+            border: 1px solid $font04;
+            box-shadow: $shadow02;
 
-	.search-group {
-		
-		svg {
-			display: block;
-			width: 15px;
-			height: 15px;
-			margin-right: 12px;
+            &.active {
+                display: block;
+            }
 
-			path {
-				fill: $font03;
-			}
-		}
+            input {
+                display: block;
+                width: 100%;
+                margin-bottom: 15px;
+            }
 
-		input {
-			@extend %block_radius;
-			@include placeholder($font04);
-			box-shadow: inset $shadow;
-			display: block;
-			width: 250px;
-			padding: 7px 12px;
-			border: 1px solid $font04;
-			background: $back01;
-			font-family: $fonts;
-			font-weight: 400;
-			font-size: 16px;
-		} 
-	}
+            .pfa-btn-group {
+                display: flex;
+                align-items: center;
+            }
+
+            .close {
+                position: absolute;
+                top: 5px;
+                right: 5px;
+                width: 10px;
+                height: 10px;
+                cursor: pointer;
+
+                svg {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+
+                    polygon {
+                        fill: $font03;
+                    }
+                }
+            }
+        }
+    }
+
+    .search-group {
+        
+        svg {
+            display: block;
+            width: 15px;
+            height: 15px;
+            margin-right: 12px;
+
+            path {
+                fill: $font03;
+            }
+        }
+
+        input {
+            display: block;
+            width: 250px;
+        } 
+    }
 }
 
 nav {
-	width: 100%;
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	padding: 20px 20px 15px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px 20px 15px 20px;
 
-	button {
-		@extend %block_radius;
-		margin-right: 10px;
-		border: 1px solid $font04;
-		background: $back01;
-		cursor: pointer;
-		transition-duration: $animation;
-		font-family: $fonts;
-		font-weight: 400;
-		font-size: 14px;
+    .earlier,
+    .later {
+        width: 20px;
+        height: 20px;
+        padding: 0;
 
-		&:hover { background: $back01 - 10; }
-		&:last-child { margin-right: 0; }
-	}
+        svg {
+            width: 50%;
+            height: 50%;
 
-	.earlier,
-	.later {
-		width: 20px;
-		height: 20px;
-		padding: 0;
+            polygon {
+                fill: $font02;
+            }
+        }
+    }
 
-		svg {
-			width: 50%;
-			height: 50%;
+    .current-date {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        min-width: 126px;
+        font-size: 18px;
+        font-weight: 500;
+        margin-right: 10px;
 
-			polygon {
-				fill: $font02;
-			}
-		}
-	}
+        .month {
+            margin-right: 4px;
+        }
 
-	.current-date {
-		display: flex;
-		align-items: flex-end;
-		font-size: 18px;
-		font-weight: 500;
-		margin-right: 10px;
-
-		.month {
-			margin-right: 4px;
-		}
-	}
+        .month,
+        .year {
+            cursor: pointer;
+        }
+    }
 }
 
 .calendar {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	padding: 0 20px 20px 20px;
-	
-	.row {
-		display: flex;
-		justify-content: space-between;
-		height: 20%;
-		
-		.col {
-			width: 14.2857%;
-			border: 1px solid transparent;
-			border-top: 1px solid $border01;
-			border-left: 1px solid $border01;
-			padding: 8px;
-			transition-duration: $animation;
-			font-family: $fonts;
-			font-weight: 400;
-			font-size: 14px;
-			color: $font03;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0 20px 20px 20px;
+    
+    .row {
+        display: flex;
+        justify-content: space-between;
+        height: 20%;
+        
+        .col {
+            width: 14.2857%;
+            border: 1px solid transparent;
+            border-top: 1px solid $border01;
+            border-left: 1px solid $border01;
+            padding: 8px;
+            transition-duration: $animation;
+            font-family: $fonts;
+            font-weight: 400;
+            font-size: 14px;
+            color: $font03;
 
-			&:last-child { border-right: 1px solid $border01; }
-			&:hover { border: 1px solid $acent03 !important; }
+            &:last-child { border-right: 1px solid $border01; }
+            &:hover { border: 1px solid $acent03 !important; }
 
-			&.focus {
-				border: 2px solid $acent03;
-				background: $acent04;
-			}
+            &.focus {
+                border: 2px solid $acent03;
+                background: $acent04;
+            }
 
-			&.current {
-				background: $back02;
-				.col-date {
-					font-weight: 700;
-					color: $font01;
-				}
-			}
+            &.current {
+                background: $back02;
+                .col-date {
+                    font-weight: 700;
+                    color: $font01;
+                }
+            }
 
-			&.event {
-				background: $acent02;
-				/*color: $font05;*/
-				color: $font01;
+            &.event {
+                background: $acent02;
+                /*color: $font05;*/
+                color: $font01;
 
-				.col-title { font-weight: 700; }
-			}
+                .col-title { font-weight: 700; }
+            }
 
-			&.unfit {
-				color: $font04;
-			}
+            &.unfit {
+                color: $font04;
+            }
 
-			&.unfit.event {
-				background: transparent;
-				color: $font04;
-			}
+            &.unfit.event {
+                background: transparent;
+                color: $font04;
+            }
 
-			.col-date,
-			.col-title {
-				margin-bottom: 4px;
-			}
-		}
+            .col-date,
+            .col-title {
+                margin-bottom: 4px;
+            }
+        }
 
-		&:last-child .col { border-bottom: 1px solid $border01; }
-	}
+        &:last-child .col { border-bottom: 1px solid $border01; }
+    }
 }
