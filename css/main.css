@@ -259,6 +259,7 @@ header .button-group div:last-child {
   margin-right: 0;
 }
 header .button-group .popup-fast-add {
+  z-index: 999;
   display: none;
   position: absolute;
   top: 45px;
@@ -345,6 +346,7 @@ nav .later svg polygon {
   fill: #666666;
 }
 nav .current-date {
+  position: relative;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -365,6 +367,37 @@ nav .current-date .month {
 nav .current-date .month,
 nav .current-date .year {
   cursor: pointer;
+}
+nav .current-date #popup-month {
+  display: none;
+  position: absolute;
+  top: 25px;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+nav .current-date #popup-month.active {
+  display: block;
+}
+nav .current-date #popup-month #pm-item {
+  padding: 5px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 400;
+}
+nav .current-date #popup-month #pm-item:hover {
+  background: #006fca;
+  color: #ffffff;
+}
+nav .current-date #popup-month #pm-item.active {
+  background: #e5f1f9;
+  font-weight: 500;
+}
+nav .current-date #popup-month #pm-item.active:hover {
+  background: #006fca;
+  color: #ffffff;
 }
 
 .calendar {
