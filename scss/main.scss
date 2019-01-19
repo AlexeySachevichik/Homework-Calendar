@@ -259,7 +259,7 @@ nav {
             display: none;
             position: absolute;
             top: 25px;
-            left: 0;
+            left: -11px;
             background: $back01;
             border: 1px solid $font04;
             box-shadow: $shadow02;
@@ -268,7 +268,47 @@ nav {
                 display: block;
             }
 
-            #pm-item{
+            .pm-item{
+                padding: 5px 15px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 400;
+
+                &:hover {
+                    background: $acent01;
+                    color: $back01;
+                }
+
+                &.active {
+                    background: $acent04;
+                    font-weight: 500;
+
+                    &:hover {
+                        background: $acent01;
+                        color: $back01;
+                    }
+                }
+            }
+        }
+
+        #popup-year {
+            /*display: none;*/
+            display: block;
+            max-height: 308px;
+            overflow: hidden;
+            overflow-y: scroll;
+            position: absolute;
+            top: 25px;
+            right: -11px;
+            background: $back01;
+            border: 1px solid $font04;
+            box-shadow: $shadow02;
+
+            &.active {
+                display: block;
+            }
+
+            .py-item {
                 padding: 5px 15px;
                 cursor: pointer;
                 font-size: 16px;

@@ -372,7 +372,7 @@ nav .current-date #popup-month {
   display: none;
   position: absolute;
   top: 25px;
-  left: 0;
+  left: -11px;
   background: #ffffff;
   border: 1px solid #cccccc;
   -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -381,21 +381,56 @@ nav .current-date #popup-month {
 nav .current-date #popup-month.active {
   display: block;
 }
-nav .current-date #popup-month #pm-item {
+nav .current-date #popup-month .pm-item {
   padding: 5px 15px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 400;
 }
-nav .current-date #popup-month #pm-item:hover {
+nav .current-date #popup-month .pm-item:hover {
   background: #006fca;
   color: #ffffff;
 }
-nav .current-date #popup-month #pm-item.active {
+nav .current-date #popup-month .pm-item.active {
   background: #e5f1f9;
   font-weight: 500;
 }
-nav .current-date #popup-month #pm-item.active:hover {
+nav .current-date #popup-month .pm-item.active:hover {
+  background: #006fca;
+  color: #ffffff;
+}
+nav .current-date #popup-year {
+  /*display: none;*/
+  display: block;
+  max-height: 308px;
+  overflow: hidden;
+  overflow-y: scroll;
+  position: absolute;
+  top: 25px;
+  right: -11px;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+nav .current-date #popup-year.active {
+  display: block;
+}
+nav .current-date #popup-year .py-item {
+  padding: 5px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 400;
+}
+nav .current-date #popup-year .py-item:hover {
+  background: #006fca;
+  color: #ffffff;
+}
+nav .current-date #popup-year .py-item.active {
+  background: #e5f1f9;
+  font-weight: 500;
+}
+nav .current-date #popup-year .py-item.active:hover {
   background: #006fca;
   color: #ffffff;
 }

@@ -41,7 +41,7 @@ var buttonCurrent = document.getElementById('btn-current');
  */
 var buttonMonth = document.getElementById('btn-month');
 var pupopMonth = document.getElementById('popup-month');
-
+var listPupopMonth = document.getElementsByClassName('pm-item');
 
 /**
  * ВЫБОР ГОДА
@@ -84,6 +84,11 @@ var setLaterMonth = function(){
     dateSelected.setMonth(dateSelected.getMonth() + 1);
 }
 
+// Устанавливаем месяц по индексу
+var setSelectedMonth = function(number){
+    dateSelected.setMonth(number);
+}
+
 // Получим даты выбранного месяца
 var getMonthDay = function(){
     var arrayDays = [];
@@ -116,6 +121,32 @@ var getMonthDay = function(){
     return arrayDays;
 }
 
+// Получим года для списка
+var getListYear = function(){
+    var years = [];
+    for(var i=(+dateCurrent.getFullYear()-20); i<(+dateCurrent.getFullYear()+50); i++) years.push(i);
+    return years;
+}
+
+// Получим индекс (id) по дате
+var getIndexDate = function(day){
+    var m = ('' + day[1]).length == 1 ? '0' + (day[1] + 1) : day[1] + 1 ;
+    var d = ('' + day[2]).length == 1 ? '0' + day[2] : day[2] ;
+
+    return [day[0], m, d].join('');
+}
+
+// Получим дату в виде массива из индекса
+var getDateIndex = function(index){
+    var day = [];
+    day.push(+index.slice(0,4));
+    day.push( +(index[4] == '0' ? index[5] : index.slice(4,6)) - 1 );
+    day.push( +(index[6] == '0' ? index[7] : index.slice(6)) );
+    return day;
+}
+
+
+
 
 
 
@@ -130,7 +161,6 @@ var changeLableMonth = function(){
 var changeLableYear = function(){
     buttonYear.innerHTML = dateSelected.getFullYear();
 }
-
 
 // Показываем сообщения 
 var showStatus = function(element, status, message){
@@ -173,6 +203,8 @@ var showSelectedMonth = function(){
                 colDate.innerHTML = days[count][2];
             }
             col.appendChild(colDate);
+            getDateIndex(getIndexDate(days[count]));
+            col.setAttribute("index-date", getIndexDate(days[count]));
 
             count++;
             row.appendChild(col);
@@ -181,10 +213,72 @@ var showSelectedMonth = function(){
     }
 }
 
+// Создадим заполнитель POPUP МЕСЯЦ
+var createDOMListMonth = function(){
+    for(var i=0; i<listMonth.length; i++){
+        var item = document.createElement('div');
+        item.classList.add('pm-item');
+        item.setAttribute('id', 'pm-item')
+        item.innerHTML = listMonth[i];
+        pupopMonth.appendChild(item);
+    }
+}
+
+// Выделяем выбранный месяц в списке
+var markMonthInList = function(){
+    var month = dateSelected.getMonth();
+
+    // Удаляем у всех элементов класс "active"
+    for(var i=0; i<listPupopMonth.length; i++){
+        listPupopMonth[i].classList.remove('active');
+    }
+
+    // Выбранному месяцу добавим класс "active"
+    listPupopMonth[month].classList.add('active');
+}
+
+// Создадим заполнитель POPUP ГОД
+var createDOMListYear = function(){
+    var years = getListYear();
+
+
+}
+// createDOMListYear();
 
 
 
 
+
+
+
+
+
+/**
+ * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
+ */
+var refresh = function(){
+    changeLableMonth();
+    changeLableYear();
+    markMonthInList();
+    showSelectedMonth();
+};
+createDOMListMonth();
+refresh();
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * POPUP - БЫСТРОЕ ДОБАВЛЕНИЕ
+ */
 // Нажали на кнопу "Быстрого добавления" 
 buttonFastAdd.addEventListener('click', function(e){
     pupopFastAdd.classList.toggle('active');
@@ -211,36 +305,53 @@ buttonFastAddSubmit.addEventListener('click', function(e){
     }
 });
 
+
+
+/**
+ * КНОПКИ СЛЕДУЮЩИЙ МЕСЯЦ, ПРЕДЫДУЩИЙ МЕСЯЦ, СЕГОДНЯ
+ */
 // Нажали на кнопу "Предыдущий месяц" 
 buttonEarlier.addEventListener('click', function(e){
     setEarlierMonth();
-    changeLableMonth();
-    changeLableYear();
-    showSelectedMonth();
+    refresh();
 });
 
 // Нажали на кнопу "Следующий месяц" 
 buttonLater.addEventListener('click', function(e){
     setLaterMonth();
-    changeLableMonth();
-    changeLableYear();
-    showSelectedMonth();
+    refresh();
 });
 
 // Нажали на кнопу "Сегодня" 
 buttonCurrent.addEventListener('click', function(e){
     setCurrentDate();
-    changeLableMonth();
-    changeLableYear();
-    showSelectedMonth();
+    refresh();
 });
 
 
-window.addEventListener('click', function(e){
-    console.log(e.target);
 
+
+
+/**
+ * КНОПКИ ВЫБРАТЬ МЕСЯЦ, ВЫБРАТЬ ГОД
+ */
+window.addEventListener('click', function(e){
     // Нажали на кнопу "Название месяца"
     if(e.target == buttonMonth) pupopMonth.classList.toggle('active');
     if(e.target != buttonMonth && pupopMonth.classList.contains('active')) pupopMonth.classList.remove('active');
-
 });
+
+
+
+// На выпадающий список месяцев вешаем обработчик нажатия
+for(var i=0; i<listPupopMonth.length; i++){
+  listPupopMonth[i].addEventListener('click', function(e){
+    var indexMonth = listMonth.indexOf(e.target.innerHTML);
+    setSelectedMonth(indexMonth);
+    refresh();
+  });
+}
+
+
+
+
