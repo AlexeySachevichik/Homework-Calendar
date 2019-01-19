@@ -107,7 +107,10 @@ button.btn-header {
 
 p.status {
     font-size: 14px;
-    color: $font03;
+
+    &.info {
+        color: $font03;
+    }
 
     &.succses {
         color: $succses;

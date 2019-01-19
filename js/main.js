@@ -154,6 +154,12 @@ var View = {
             this.calendar.appendChild(row);
         }
     },
+
+    showStatusFastAdd: function(status, message){ // Показываем статус быстрого добавления записи
+        this.statusFastAdd.className = "status";
+        this.statusFastAdd.classList.add(status);
+        this.statusFastAdd.innerHTML = message;
+    },
 };
 
 
@@ -263,7 +269,7 @@ var Model = {
 
 var Controller = {
 
-    clickButtonEarlier: function(){ // Нажали на кнопу "Предыдущий месяц" 
+    clickButtonEarlier: function(){ // Нажали на кнопку "Предыдущий месяц" 
         Model.setEarlierMonth();
         View.changeLableMonth();
         View.markItemMonth();
@@ -272,7 +278,7 @@ var Controller = {
         View.showSelectedMonth();
     },
 
-    clickButtonLater: function(){ // Нажали на кнопу "Следующий месяц"
+    clickButtonLater: function(){ // Нажали на кнопку "Следующий месяц"
         Model.setLaterMonth();
         View.changeLableMonth();
         View.markItemMonth();
@@ -281,7 +287,7 @@ var Controller = {
         View.showSelectedMonth();
     },
 
-    clickButtonCurrent: function(){ // Нажали на кнопу "Сегодня"
+    clickButtonCurrent: function(){ // Нажали на кнопку "Сегодня"
         Model.setCurrentDate();
         View.changeLableMonth();
         View.markItemMonth();
@@ -290,7 +296,7 @@ var Controller = {
         View.showSelectedMonth();
     },
 
-    clickButtonMonth: function(e){ // Нажали на кнопу "Название месяца"
+    clickButtonMonth: function(e){ // Нажали на кнопку "Название месяца"
         if(e.target == View.buttonMonth) View.pupopMonth.classList.toggle('active');
         if(e.target != View.buttonMonth && View.pupopMonth.classList.contains('active')) View.pupopMonth.classList.remove('active');
     },
@@ -303,7 +309,7 @@ var Controller = {
         View.showSelectedMonth();
     },
 
-    clickButtonYear: function(e){ // Нажали на кнопу "Название месяца"
+    clickButtonYear: function(e){ // Нажали на кнопку "Название месяца"
         if(e.target == View.buttonYear) View.pupopYear.classList.toggle('active');
         if(e.target != View.buttonYear && View.pupopYear.classList.contains('active')) View.pupopYear.classList.remove('active');
     },
@@ -313,6 +319,32 @@ var Controller = {
         View.changeLableYear();
         View.markItemYear();
         View.showSelectedMonth();
+    },
+
+    clickButtonFastAdd: function(){ // Нажали на кнопку "Добавить"
+        
+        View.pupopFastAdd.classList.toggle('active');
+    },
+
+    clickButtonCloseFastAdd: function(){ // Нажали на кнопку "X" Popup Быстрое Добавление 
+        View.pupopFastAdd.classList.remove('active');
+        View.statusFastAdd.innerHTML = '';
+    },
+
+    clickButtonCancelFastAdd: function(){ // Нажали на кнопку "Отмена" Popup Быстрое Добавление
+        View.pupopFastAdd.classList.remove('active');
+        View.inputFastAdd.value = '';
+        View.statusFastAdd.innerHTML = '';
+    },
+
+    clickButtonSumbitFastAdd: function(){ // Нажали на кнопку "Добавить" Popup Быстрое Добавление
+        if( View.inputFastAdd.value =='' ){
+            View.showStatusFastAdd('error', 'Заполните поле');
+        }
+        else {
+            View.showStatusFastAdd('succses', 'Данные добавлены');
+            View.inputFastAdd.value = '';
+        }
     },
 };
 
@@ -342,22 +374,42 @@ var Controller = {
         event: function(){
 
             /**
+             * КНОПКА ДОБАВИТЬ
+             */
+            // Нажали на кнопку "Добавить"
+            View.buttonFastAdd.addEventListener('click', Controller.clickButtonFastAdd);
+
+
+            /**
+             * POPUP БЫСТРО ДОБАВИТЬ
+             */
+            // Нажали на кнопку "X" Popup Быстрое Добавление
+            View.buttonCloseFastAdd.addEventListener('click', Controller.clickButtonCloseFastAdd);
+
+            // Нажали на кнопку "Отмена" Popup Быстрое Добавление
+            View.buttonCancelFastAdd.addEventListener('click', Controller.clickButtonCancelFastAdd);
+
+            // Нажали на кнопку "Добавить" Popup Быстрое Добавление
+            View.buttonSubmitFastAdd.addEventListener('click', Controller.clickButtonSumbitFastAdd);
+
+
+            /**
              * КНОПКИ СЛЕДУЮЩИЙ МЕСЯЦ, ПРЕДЫДУЩИЙ МЕСЯЦ, СЕГОДНЯ
              */
-            // Нажали на кнопу "Предыдущий месяц"
+            // Нажали на кнопку "Предыдущий месяц"
             View.buttonEarlier.addEventListener('click', Controller.clickButtonEarlier);
 
-            // Нажали на кнопу "Следующий месяц"
+            // Нажали на кнопку "Следующий месяц"
             View.buttonLater.addEventListener('click', Controller.clickButtonLater);
 
-            // Нажали на кнопу "Сегодня"
+            // Нажали на кнопку "Сегодня"
             View.buttonCurrent.addEventListener('click', Controller.clickButtonCurrent);
 
 
             /**
              * КНОПКА ВЫБРАТЬ МЕСЯЦ
              */
-            // Нажали на кнопу "Название месяца"
+            // Нажали на кнопку "Название месяца"
             window.addEventListener('click', function(e){
                Controller.clickButtonMonth(e); 
             });
@@ -373,6 +425,7 @@ var Controller = {
             /**
              * КНОПКА ВЫБРАТЬ ГОД
              */
+            // Нажали на кнопку "Номер года"
             window.addEventListener('click', function(e){
                Controller.clickButtonYear(e);
             });
@@ -389,61 +442,3 @@ var Controller = {
 
     App.init();
 }());
-
-
-
-
-
-
-
-
-
-// var timer; // Общий таймер
-
-// Показываем сообщения 
-// var showStatus = function(element, status, message){
-//     clearInterval(timer);
-//     element.className = "status";
-//     element.innerHTML = message;
-//     element.classList.add(status);
-
-//     timer = setInterval(function(){
-//         element.innerHTML = '';
-//         element.classList.remove(status);
-//     }, 5000);
-// }
-
-
-
-
-
-
-
-// /**
-//  * POPUP - БЫСТРОЕ ДОБАВЛЕНИЕ
-//  */
-// // Нажали на кнопу "Быстрого добавления" 
-// buttonFastAdd.addEventListener('click', function(e){
-//     pupopFastAdd.classList.toggle('active');
-// });
-
-// // Нажали на кнопу "Быстрого добавления - Отмена" 
-// buttonFastAddCancel.addEventListener('click', function(e){
-//     pupopFastAdd.classList.toggle('active');
-//     inputFastAdd.value = "";
-// });
-
-// // Нажали на кнопу "Быстрого добавления - Закрыть" 
-// buttonFastAddClose.addEventListener('click', function(e){
-//     pupopFastAdd.classList.toggle('active');
-// });
-
-// // Нажали на кнопу "Быстрого добавления - Добавить" 
-// buttonFastAddSubmit.addEventListener('click', function(e){
-//     if(inputFastAdd.value == ''){
-//         showStatus(statusFastAdd, 'error', 'Заполните поле');
-//     }
-//     else {
-//         showStatus(statusFastAdd, 'succses', 'Запись добавлена');
-//     }
-// });
