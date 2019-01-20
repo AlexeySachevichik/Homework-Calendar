@@ -36,7 +36,7 @@
                 <div class="add">
                     <button id="btn-fast-add" title="Добавить новую запись" class="btn-header">Добавить</button>
                     <div id="popup-fast-add" class="popup-fast-add">
-                        <input id="pfa-input" type="text" placeholder="5 марта, День Рождения">
+                        <input id="pfa-input" type="text" placeholder="5 марта, День Рождения" value="5 марта, День Рождения">
                         <div class="pfa-btn-group">
                             <button id="pfa-btn-submit" class="btn-form">Создать</button>
                             <button id="pfa-btn-canсel" class="btn-form">Отмена</button>
@@ -68,77 +68,13 @@
             <button id="btn-current" title="Перейти к текущей дате" class="btn-form">Сегодня</button>
         </nav>
 
-        <div id="calendar" class="calendar">
-            <div class="row">
-                <div class="col unfit">
-                    <div class="col-date">Понедельник, 31</div></div>
-                <div class="col">Вторник, 1</div>
-                <div class="col current event">
-                    <div class="col-date">Среда, 2</div>
-                    <div class="col-title">Напиться!</div>
-                    <div class="col-members">Витя Костин, Петр Михайлов</div>
-                </div>
-                <div class="col">Четверг, 3</div>
-                <div class="col">Пятница, 4</div>
-                <div class="col current">
-                    <div class="col-date">Суббота, 5</div>
-                </div>
-                <div class="col">Воскресенье, 6</div>
-            </div>
-            <div class="row">
-                <div class="col">7</div>
-                <div class="col">8</div>
-                <div class="col">9</div>
-                <div class="col">10</div>
-                <div class="col">11</div>
-                <div class="col event">
-                    <div class="col-date">12</div>
-                    <div class="col-title">Напиться!</div>
-                    <div class="col-members">Витя Костин, Петр Михайлов</div>
-                </div>
-                <div class="col">13</div>
-            </div>
-            <div class="row">
-                <div class="col">14</div>
-                <div class="col">15</div>
-                <div class="col focus">16</div>
-                <div class="col">17</div>
-                <div class="col">18</div>
-                <div class="col">19</div>
-                <div class="col">20</div>
-            </div>
-            <div class="row">
-                <div class="col">21</div>
-                <div class="col">22</div>
-                <div class="col">23</div>
-                <div class="col">24</div>
-                <div class="col">25</div>
-                <div class="col">26</div>
-                <div class="col">27</div>
-            </div>
-            <div class="row">
-                <div class="col">28</div>
-                <div class="col">29</div>
-                <div class="col">30</div>
-                <div class="col">31</div>
-                <div class="col unfit">
-                    <div class="col-date">1</div>
-                </div>
-                <div class="col unfit event">
-                    <div class="col-date">2</div>
-                    <div class="col-title">Напиться!</div>
-                    <div class="col-members">Витя Костин, Петр Михайлов</div>
-                </div>
-                <div class="col unfit">
-                    <div class="col-date">3</div>
-                </div>
-            </div>
-        </div>
+        <div id="calendar" class="calendar"></div>
 
     </div>
 </div>
 
     <!-- <script src="data/events.json"></script> -->
+    <script src="data/events.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

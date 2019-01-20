@@ -469,6 +469,7 @@ nav .current-date #popup-year .py-item.active:hover {
   font-weight: 400;
   font-size: 14px;
   color: #9e9e9e;
+  cursor: pointer;
 }
 .calendar .row .col:last-child {
   border-right: 1px solid #e4e4e4;
@@ -501,6 +502,9 @@ nav .current-date #popup-year .py-item.active:hover {
 .calendar .row .col.unfit.event {
   background: transparent;
   color: #cccccc;
+}
+.calendar .row .col.current.event {
+  background: #f4f4f4;
 }
 .calendar .row .col .col-date,
 .calendar .row .col .col-title {

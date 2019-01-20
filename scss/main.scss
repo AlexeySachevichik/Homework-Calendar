@@ -358,6 +358,7 @@ nav {
             font-weight: 400;
             font-size: 14px;
             color: $font03;
+            cursor: pointer;
 
             &:last-child { border-right: 1px solid $border01; }
             &:hover { border: 1px solid $acent03 !important; }
@@ -390,6 +391,10 @@ nav {
             &.unfit.event {
                 background: transparent;
                 color: $font04;
+            }
+
+            &.current.event {
+                background: $back02;
             }
 
             .col-date,

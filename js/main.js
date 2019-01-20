@@ -2,8 +2,9 @@
 
 var View = {
 
-    listDay: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
-    listMonth: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+    listDay: ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'],
+    listMonth: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'],
+    listMonths: ['января', 'февраля', 'марта', 'апреля', 'майа', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
 
     /**
      * БЫСТРОЕ ДОБАВЛЕНИЕ ЗАПИСИ
@@ -59,15 +60,19 @@ var View = {
     },
 
     changeLableMonth: function(){ // Меняем метку выбранного месяца
-        
-        this.buttonMonth.innerHTML = this.listMonth[ Model.date.getMonth() ];
+        var month = this.listMonth[ Model.date.getMonth() ];
+        this.buttonMonth.innerHTML = month[0].toUpperCase() + month.slice(1);
     },
 
     createItemsMonth: function(){ // Создаем список месяцев в выпадающем списке
+        this.pupopMonth.innerHTML = '';
+
         for(var i=0; i<this.listMonth.length; i++){
             var item = this.createDivWithClass('pm-item');
             item.setAttribute('id', 'pm-item');
-            item.innerHTML = this.listMonth[i];
+
+            var month = this.listMonth[i];
+            item.innerHTML = month[0].toUpperCase() + month.slice(1);
             this.pupopMonth.appendChild(item);
         }
     },
@@ -88,8 +93,9 @@ var View = {
         this.buttonYear.innerHTML = Model.date.getFullYear();
     },
 
-    createItemsYear: function(){
+    createItemsYear: function(){ // Создаем список годов
         var years = Model.getListYear();
+        this.pupopYear.innerHTML = '';
 
         for(var i=0; i<years.length; i++){
             var item = this.createDivWithClass('py-item');
@@ -126,15 +132,13 @@ var View = {
 
             for(var i=0; i<7; i++){
                 var col = this.createDivWithClass('col');
+                col.setAttribute("date-index", Model.getIndexDate(days[count]));
 
                 // Если дата не относиться к текущему месяцу добавим класс
                 if( days[count][1] != currentMonth ) col.classList.add('unfit');
 
                 // Если сегодняшняя дата, то добавим класс
                 if( Model.ifToday(days[count]) ) col.classList.add('current');
-
-                //
-                if( Model.ifEvent(days[count]) ) console.log('True' + days[count]);
 
                 // Елемент с датой
                 var colDate = this.createDivWithClass('col-date');
@@ -144,9 +148,25 @@ var View = {
                 else     colDate.innerHTML = days[count][2];
 
                 col.appendChild(colDate);
-                col.setAttribute("date-index", Model.getIndexDate(days[count]));
-                row.appendChild(col);
+                
+                // Если сегодняшняя дата событие, то добавим класс и покажем даные
+                if( Model.ifEvent(days[count]) ) {
+                    col.classList.add('event');
+                    var colTitle = this.createDivWithClass('col-title');
+                    var colDescr = this.createDivWithClass('col-descr');
 
+                    var event = Model.getEvent(days[count]);
+
+                    colTitle.innerHTML = event.title;
+
+                    var mes = ( event.users != '' ) ? event.users : event.descr;
+                    colDescr.innerHTML = mes.length>40 ? mes.slice(0, 41) + ' ...' : mes;
+
+                    col.appendChild(colTitle);
+                    col.appendChild(colDescr);
+                }
+
+                row.appendChild(col);
                 count++;
             }
             this.calendar.appendChild(row);
@@ -168,9 +188,24 @@ var Model = {
 
     date: new Date(), // Текущая дата
 
-    events: new Object(), // Обьект с событиями
+    events: {}, // Обьект с событиями
 
-    ifToday: function(day){
+    readJsonFile: function(){ // Сделаем удобочитаемый объект
+        var list = JSON.parse(FILE);
+
+        for(var i=0; i<list.length; i++) {
+            var key = list[i].date;
+            this.events[key] = {
+                'title': list[i].title,
+                'users': list[i].users,
+                'descr': list[i].descr
+            };
+        };
+
+        // console.log(this.events);
+    },
+
+    ifToday: function(day){ // Если дата сегодня
         var dateTemp = new Date();
         var year  = dateTemp.getFullYear();
         var month = dateTemp.getMonth();
@@ -180,19 +215,26 @@ var Model = {
         else return false;
     },
 
-    ifEvent: function(day){
-        var i = this.getIndexDate(day);
-        console.log(i);
-        console.log(this.events, typeof this.events);
+    ifEvent: function(day){ // Если дата событие
+        if(this.getIndexDate(day) in this.events) return true;
+        else return false;
+    },
 
+    getEvent: function(day){ // Получим данные события
+        
+        return this.events[this.getIndexDate(day)];
     },
 
     refresh: function(){ // Обнавление блоков (элементов) при изменении данных
-        View.changeLableMonth();
-        View.createItemsMonth();
-        View.markItemMonth();
-        View.changeLableYear();
-        View.showSelectedMonth();
+        Model.setCurrentDate();   // Установим текущую дату
+        Model.readJsonFile();     // Считываем данные
+        View.changeLableMonth();  // Выведем метку месяца
+        View.createItemsMonth();  // Создадим список месяцев
+        View.markItemMonth();     // Выделим текущий месяц
+        View.changeLableYear();   // Выведем метку года
+        View.createItemsYear();   // Создадим список годов
+        View.markItemYear();      // Выделим текущий год
+        View.showSelectedMonth(); // Выведем календарь
     },
 
     setCurrentDate: function(){ // Устанавливим текущую дату
@@ -268,25 +310,62 @@ var Model = {
         return years;
     },
 
-    readJsonFile: function(){ // Прочтем данные из файла .json
-        var xhr = new XMLHttpRequest();
-        xhr.overrideMimeType("application/json");
-        xhr.open('GET', '/data/events.json', true);
+    // readJsonFile: function(){ // Прочтем данные из файла .json
+    //     var xhr = new XMLHttpRequest();
+    //     xhr.overrideMimeType("application/json");
+    //     xhr.open('GET', '/data/events.json', true);
 
-        xhr.onreadystatechange = function() {
-            // Запрос завершен и ответ сервера 200, то все ок
-            if (xhr.readyState === 4 && xhr.status == 200) {
-                Model.readJsonObject(xhr.responseText);
-            };
-        };
-        xhr.send(null);
+    //     xhr.onreadystatechange = function() {
+    //         // Запрос завершен и ответ сервера 200, то все ок
+    //         if (xhr.readyState === 4 && xhr.status == 200) {
+    //             Model.readJsonObject(xhr.responseText);
+    //         };
+    //     };
+    //     xhr.send(null);
+    // },
+
+    // readJsonObject: function(p){ // Данные из файла .json поместим в обьект
+    //     var o = JSON.parse(p);
+    //     o.forEach(function(i){
+    //         Model.events[i.date] = i;
+    //     });
+    // },
+
+    splitStrFastAdd: function(str){ // Разбивка строки в быстром добавлении
+        var arr = str.split(', ');
+        var date = arr[0].split(" ");
+
+        return [date[1].toLowerCase(), +date[0], str.slice( str.indexOf(',') + 2 )];
     },
 
-    readJsonObject: function(p){ // Данные из файла .json поместим в массив
-        var o = JSON.parse(p);
-        o.forEach(function(i){
-            Model.events[i.date] = i;
-        });
+    ifCorrectFastAdd: function(str){ // Проверим корректность строки
+        var data = this.splitStrFastAdd(str);
+
+        if( !(data[1]>0 && data[1]<31) ) return false;
+        if( View.listMonths.indexOf( data[0] ) == -1 && View.listMonth.indexOf( data[0] ) == -1) return false;
+        return true;
+    },
+
+    addEventFastAdd: function(str){ // Добавление новой записи в объект
+        var data = this.splitStrFastAdd(str);
+        var month;
+
+        if( View.listMonths.indexOf( data[0] ) != -1)     month = View.listMonths.indexOf( data[0] );
+        else if( View.listMonth.indexOf( data[0] ) != -1) month = View.listMonth.indexOf( data[0] );
+
+        var index = this.getIndexDate( [this.date.getFullYear(), month, data[1]] );
+
+        this.setSelectedMonth(month);
+
+        if( this.ifEvent(this.getDateIndex(index)) ) return false;
+        else {
+            this.events[index] = {
+                'title': data[2],
+                'users': '',
+                'descr': '',
+            };
+            return true;
+        }
     },
 };
 
@@ -329,7 +408,8 @@ var Controller = {
     },
 
     clickItemMonth: function(e){ // Нажали на месяц из списка
-        var index = View.listMonth.indexOf(e.target.innerHTML);
+        var month = e.target.innerHTML;
+        var index = View.listMonth.indexOf(month.toLowerCase());
         Model.setSelectedMonth(index);
         View.changeLableMonth();
         View.markItemMonth();
@@ -365,13 +445,31 @@ var Controller = {
     },
 
     clickButtonSumbitFastAdd: function(){ // Нажали на кнопку "Добавить" Popup Быстрое Добавление
-        if( View.inputFastAdd.value =='' ){
-            View.showStatusFastAdd('error', 'Заполните поле');
+        var input = View.inputFastAdd.value;
+
+        if( input == '' ) View.showStatusFastAdd('error', 'Заполните поле');
+
+        else if ( Model.ifCorrectFastAdd( input ) ) {
+            if( Model.addEventFastAdd( input ) ) {
+                View.showStatusFastAdd('succses', 'Данные добавлены');
+                View.changeLableMonth();
+                View.markItemMonth();
+                View.showSelectedMonth();
+                input = '';
+            }
+            else {
+                View.showStatusFastAdd('info', 'День занят');
+                View.changeLableMonth();
+                View.markItemMonth();
+                View.showSelectedMonth();
+            }
         }
-        else {
-            View.showStatusFastAdd('succses', 'Данные добавлены');
-            View.inputFastAdd.value = '';
-        }
+        else View.showStatusFastAdd('error', 'Данные некорректны');
+    },
+
+    clickButtonUpdate: function(){ // Нажали на кнопку "Обновить"
+        
+        Model.refresh();
     },
 };
 
@@ -385,15 +483,7 @@ var Controller = {
          * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
          */
         init: function(){
-            Model.readJsonFile();     // Делаем удобочитаемый обьект
-            Model.setCurrentDate();   // Установим текущую дату
-            View.changeLableMonth();  // Выведем метку месяца
-            View.createItemsMonth();  // Создадим список месяцев
-            View.markItemMonth();     // Выделим текущий месяц
-            View.changeLableYear();   // Выведем метку года
-            View.createItemsYear();   // Создадим список годов
-            View.markItemYear();      // Выделим текущий год
-            View.showSelectedMonth(); // Выведем календарь
+            Model.refresh();
 
             this.main();
             this.event();
@@ -406,6 +496,13 @@ var Controller = {
              */
             // Нажали на кнопку "Добавить"
             View.buttonFastAdd.addEventListener('click', Controller.clickButtonFastAdd);
+
+
+            /**
+             * КНОПКА ОБНОВИТЬ
+             */
+            // Нажали на кнопку "Обновить"
+            View.buttonUpdate.addEventListener('click', Controller.clickButtonUpdate);
 
 
             /**
