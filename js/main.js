@@ -168,7 +168,7 @@ var Model = {
 
     date: new Date(), // Текущая дата
 
-    events: {}, // Обьект с событиями
+    events: new Object(), // Обьект с событиями
 
     ifToday: function(day){
         var dateTemp = new Date();
@@ -181,34 +181,10 @@ var Model = {
     },
 
     ifEvent: function(day){
-        var index = +this.getIndexDate(day);
+        var i = this.getIndexDate(day);
+        console.log(i);
+        console.log(this.events, typeof this.events);
 
-        console.log(this.events[index]);
-        console.log(this.events);
-
-        if (this.events.index !== undefined) return true;
-
-        // console.log(day);
-        // console.log(index);
-        // 
-
-        // if (index in this.events) { return true } else { return false };
-        // (index in this.events) ? return true : return false ;
-
-        // console.log(this.events);
-        // console.log(this.events.length);
-        // console.log(this.events);
-
-        // for(var i=0; i<this.events.length; i++){
-        //     console.log(this.events[index]);
-        //     if( this.events[index] != undefined ) return true;
-        // };
-        // var index = this.getIndexDate(day);
-        // console.log(index);
-        // console.log(day);
-        // console.log( +this.getIndexDate(day));
-
-        // if( this.events.index ) return true;
     },
 
     refresh: function(){ // Обнавление блоков (элементов) при изменении данных
@@ -300,24 +276,17 @@ var Model = {
         xhr.onreadystatechange = function() {
             // Запрос завершен и ответ сервера 200, то все ок
             if (xhr.readyState === 4 && xhr.status == 200) {
-                Model.readJsonObject(JSON.parse(xhr.responseText));
+                Model.readJsonObject(xhr.responseText);
             };
         };
         xhr.send(null);
     },
 
-    readJsonObject: function(parse){ // Данные из файла .json поместим в массив
-        for(var i=0; i<parse.length; i++){
-
-            var item = parse[i];
-            var key = +item.date;
-
-            this.events[ key ] = {
-                "title": item.title,
-                "users": item.users,
-                "descr": item.descr
-            };
-        };
+    readJsonObject: function(p){ // Данные из файла .json поместим в массив
+        var o = JSON.parse(p);
+        o.forEach(function(i){
+            Model.events[i.date] = i;
+        });
     },
 };
 
@@ -416,7 +385,7 @@ var Controller = {
          * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
          */
         init: function(){
-            Model.readJsonFile();      // Делаем удобочитаемый обьект
+            Model.readJsonFile();     // Делаем удобочитаемый обьект
             Model.setCurrentDate();   // Установим текущую дату
             View.changeLableMonth();  // Выведем метку месяца
             View.createItemsMonth();  // Создадим список месяцев
