@@ -52,6 +52,7 @@ var View = {
      * ОБЛАСТЬ КАЛЕНДАРЯ
      */
     calendar: document.getElementById('calendar'),
+    colsCalendar: document.getElementsByClassName('col'),
 
     createDivWithClass: function(name){ // Создадим элемент div с классом
         var element = document.createElement('div');
@@ -60,7 +61,9 @@ var View = {
     },
 
     changeLableMonth: function(){ // Меняем метку выбранного месяца
+
         var month = this.listMonth[ Model.date.getMonth() ];
+
         this.buttonMonth.innerHTML = month[0].toUpperCase() + month.slice(1);
     },
 
@@ -68,11 +71,13 @@ var View = {
         this.pupopMonth.innerHTML = '';
 
         for(var i=0; i<this.listMonth.length; i++){
-            var item = this.createDivWithClass('pm-item');
-            item.setAttribute('id', 'pm-item');
 
+            var item = this.createDivWithClass('pm-item');
             var month = this.listMonth[i];
+
+            item.setAttribute('id', 'pm-item');
             item.innerHTML = month[0].toUpperCase() + month.slice(1);
+
             this.pupopMonth.appendChild(item);
         }
     },
@@ -81,6 +86,7 @@ var View = {
 
         // Удаляем у всех элементов класс "active"
         for(var i=0; i<this.listPupopMonth.length; i++){
+
             this.listPupopMonth[i].classList.remove('active');
         }
 
@@ -95,12 +101,16 @@ var View = {
 
     createItemsYear: function(){ // Создаем список годов
         var years = Model.getListYear();
+
         this.pupopYear.innerHTML = '';
 
         for(var i=0; i<years.length; i++){
+
             var item = this.createDivWithClass('py-item');
+
             item.setAttribute('id', 'py-item');
             item.innerHTML = years[i];
+
             this.pupopYear.appendChild(item);
         }
     },
@@ -111,6 +121,7 @@ var View = {
         for(var i=0; i<this.listPupopYear.length; i++){
 
             if( this.listPupopYear[i].innerHTML == Model.date.getFullYear() ) {
+                
                 this.listPupopYear[i].classList.add('active');
             }
             else {
@@ -125,6 +136,7 @@ var View = {
         var count = 0;
         var currentMonth = days[17][1];
         
+        this.colsCalendar = [];        
         this.calendar.innerHTML = '';
 
         for(var j=0; j<quantityWeaks; j++){
@@ -143,23 +155,23 @@ var View = {
                 // Елемент с датой
                 var colDate = this.createDivWithClass('col-date');
                 
-                // Дле первой недели добавим названия дней недели
+                // Для первой недели добавим названия дней недели
                 if(j==0) colDate.innerHTML = this.listDay[i] + ', ' + days[count][2];
                 else     colDate.innerHTML = days[count][2];
 
                 col.appendChild(colDate);
                 
-                // Если сегодняшняя дата событие, то добавим класс и покажем даные
+                // Если сегодняшняя дата это событие, то добавим класс и покажем даные
                 if( Model.ifEvent(days[count]) ) {
                     col.classList.add('event');
+
                     var colTitle = this.createDivWithClass('col-title');
                     var colDescr = this.createDivWithClass('col-descr');
 
                     var event = Model.getEvent(days[count]);
+                    var mes = ( event.users != '' ) ? event.users : event.descr;
 
                     colTitle.innerHTML = event.title;
-
-                    var mes = ( event.users != '' ) ? event.users : event.descr;
                     colDescr.innerHTML = mes.length>40 ? mes.slice(0, 41) + ' ...' : mes;
 
                     col.appendChild(colTitle);
@@ -171,6 +183,8 @@ var View = {
             }
             this.calendar.appendChild(row);
         }
+
+        Model.refreshColsEvent(); // Обнавление события клика на ячейках дней
     },
 
     showStatusFastAdd: function(status, message){ // Показываем статус быстрого добавления записи
@@ -229,10 +243,8 @@ var Model = {
         Model.setCurrentDate();   // Установим текущую дату
         Model.readJsonFile();     // Считываем данные
         View.changeLableMonth();  // Выведем метку месяца
-        View.createItemsMonth();  // Создадим список месяцев
         View.markItemMonth();     // Выделим текущий месяц
         View.changeLableYear();   // Выведем метку года
-        View.createItemsYear();   // Создадим список годов
         View.markItemYear();      // Выделим текущий год
         View.showSelectedMonth(); // Выведем календарь
     },
@@ -367,6 +379,17 @@ var Model = {
             return true;
         }
     },
+
+    refreshColsEvent: function(){ // Обнавление события клика на ячейках дней
+        View.colsCalendar = document.getElementsByClassName('col');
+
+        for(var i=0; i<View.colsCalendar.length; i++){
+
+            View.colsCalendar[i].addEventListener('click', function(e){
+                Controller.clickColCalendar(e);
+            });
+        }
+    },
 };
 
 
@@ -471,6 +494,18 @@ var Controller = {
         
         Model.refresh();
     },
+
+    clickColCalendar: function(e){
+
+        // Если кликнули на дочерние элементы, выбирем ячейку
+        if( !e.target.classList.contains('col')) var col = e.target.parentNode;
+        else var col = e.target;
+
+
+        // console.log(e);
+        // console.log(col);
+        console.log(col.getBoundingClientRect());
+    },
 };
 
 
@@ -483,6 +518,8 @@ var Controller = {
          * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
          */
         init: function(){
+            View.createItemsYear();   // Создадим список годов
+            View.createItemsMonth();  // Создадим список месяцев
             Model.refresh();
 
             this.main();
@@ -561,6 +598,13 @@ var Controller = {
                     Controller.clickItemYear(e);
                 });
             }
+
+
+            /**
+             * НАЖАЛИ НА ЛЮБУЮ ЯЧЕЙКУ ДНЕЙ
+             */
+            // На ячейки дней вешаем обработчик клика
+            // Model.refreshColsEvent(); // Обнавление события клика на ячейках дней
 
         },
     };

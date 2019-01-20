@@ -7,9 +7,9 @@ var FILE = JSON.stringify([
     },
     {
         "date": "20190120",
-        "title": "Lorem ipsum",
+        "title": "День Рождения Отца!",
         "users": "",
-        "descr": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vehicula diam vel turpis convallis."
+        "descr": "Главное не забыть поздравить, никак в прошлый раз)"
     },
     {
         "date": "20190121",
