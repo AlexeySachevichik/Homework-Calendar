@@ -331,7 +331,7 @@ var Model = {
     //     });
     // },
 
-    splitStrFastAdd: function(str){ // Разбивка строки в быстром добавлении
+    splitStrFastAdd: function(str){ // Разбивка строки при быстром добавлении
         var arr = str.split(', ');
         var date = arr[0].split(" ");
 
@@ -341,7 +341,7 @@ var Model = {
     ifCorrectFastAdd: function(str){ // Проверим корректность строки
         var data = this.splitStrFastAdd(str);
 
-        if( !(data[1]>0 && data[1]<31) ) return false;
+        if( !(data[1]>0 && data[1]<32) ) return false;
         if( View.listMonths.indexOf( data[0] ) == -1 && View.listMonth.indexOf( data[0] ) == -1) return false;
         return true;
     },
