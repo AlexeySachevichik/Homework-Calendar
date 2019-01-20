@@ -177,8 +177,8 @@ header {
 
             .close {
                 position: absolute;
-                top: 5px;
-                right: 5px;
+                top: 7px;
+                right: 7px;
                 width: 10px;
                 height: 10px;
                 cursor: pointer;
@@ -365,11 +365,18 @@ nav {
             &:hover { border: 1px solid $acent03 !important; }
 
             &.focus {
-                border: 2px solid $acent03;
-                background: $acent04;
+                border: 1px solid $acent03;
+                background: $acent02;
+
+                .col-date,
+                .col-title,
+                .col-descr {
+                    color: $font01
+                }
             }
 
             &.current {
+                border: 1px solid $font03;
                 background: $back02;
                 .col-date {
                     font-weight: 700;
@@ -378,8 +385,7 @@ nav {
             }
 
             &.event {
-                background: $acent02;
-                /*color: $font05;*/
+                background: $acent04;
                 color: $font01;
 
                 .col-title { font-weight: 700; }
@@ -398,13 +404,17 @@ nav {
                 background: $back02;
             }
 
+            &.event.focus{
+                background: $acent02;
+            }
+
             .col-date,
             .col-title {
                 margin-bottom: 4px;
             }
             
             .col-descr {
-                font-size: 12px;
+                font-size: 14px;
             }
         }
 
@@ -412,24 +422,29 @@ nav {
     }
 }
 
+#popup-edit,
 #popup-add {
-    display: block;
+    display: none;
     position: fixed;
-    top: 50px;
-    left: 50px;
+    top: 150px;
+    left: 150px;
     width: 300px;
-    height: 345px;
+    /*height: 345px;*/
     z-index: 999;
     background: $back01;
     border: 1px solid $font04;
     box-shadow: $shadow02;
     padding: 15px;
 
-    .pa-date {
+    &.active {
+        display: block;
+    }
+
+    .header {
         font-family: $fonts;
         font-size: 20px;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     input,
@@ -455,8 +470,8 @@ nav {
 
     .close {
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 7px;
+        right: 7px;
         width: 10px;
         height: 10px;
         cursor: pointer;
@@ -470,5 +485,22 @@ nav {
                 fill: $font03;
             }
         }
+    }
+}
+
+#popup-edit {
+    .pe-date {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 15px 0;
+    }
+
+    .pe-user {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .pe-users {
+        margin-bottom: 15px;
     }
 }

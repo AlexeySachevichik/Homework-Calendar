@@ -71,15 +71,30 @@
         <div id="calendar" class="calendar"></div>
 
         <div id="popup-add">
-            <div id="pa-date" class="pa-date">20 Января</div>
+            <div id="pa-header" class="header"></div>
             <input id="pa-input-title" type="text" name="pa-input-title" placeholder="Событие *">
             <input id="pa-input-users" type="text" name="pa-input-users" placeholder="Имена участников">
             <textarea id="pa-descr" placeholder="Описание"></textarea>
+            <p id="pa-status" class="status"></p>
             <div class="pa-btn-group">
                 <button id="pa-btn-sumbit" class="btn-form">Добавить</button>
                 <button id="pa-btn-cancel" class="btn-form">Отмена</button>
             </div>
             <div id="pa-btn-close" class="close"><svg viewBox="0 0 256 256"><polygon points="29,0 0,29 100,128 0,227 29,256 128,157 228,256 256,227 157,128 256,29 228,0 128,99 "/></svg></div>
+        </div>
+
+        <div id="popup-edit">
+            <div id="pe-header" class="header"></div>
+            <p id="pe-date" class="pe-date"></p>
+            <p class="pe-user">Участники:</p>
+            <p id="pe-users" class="pe-users"></p>
+            <textarea id="pe-descr" placeholder="Описание"></textarea>
+            <p id="pe-status" class="status"></p>
+            <div class="pe-btn-group">
+                <button id="pe-btn-sumbit" class="btn-form">Сохранить</button>
+                <button id="pe-btn-delete" class="btn-form">Удалить</button>
+            </div>
+            <div id="pe-btn-close" class="close"><svg viewBox="0 0 256 256"><polygon points="29,0 0,29 100,128 0,227 29,256 128,157 228,256 256,227 157,128 256,29 228,0 128,99 "/></svg></div>
         </div>
 
     </div>

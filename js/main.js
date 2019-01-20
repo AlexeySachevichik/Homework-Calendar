@@ -10,7 +10,7 @@ var View = {
      * БЫСТРОЕ ДОБАВЛЕНИЕ ЗАПИСИ
      */
     buttonFastAdd:       document.getElementById('btn-fast-add'),
-    pupopFastAdd:        document.getElementById('popup-fast-add'),
+    popupFastAdd:        document.getElementById('popup-fast-add'),
     inputFastAdd:        document.getElementById('pfa-input'),
     statusFastAdd:       document.getElementById('pfa-status'),
     buttonSubmitFastAdd: document.getElementById('pfa-btn-submit'),
@@ -38,21 +38,48 @@ var View = {
      * ВЫБОР МЕСЯЦА
      */
     buttonMonth:    document.getElementById('btn-month'),
-    pupopMonth:     document.getElementById('popup-month'),
-    listPupopMonth: document.getElementsByClassName('pm-item'),
+    popupMonth:     document.getElementById('popup-month'),
+    listPopupMonth: document.getElementsByClassName('pm-item'),
 
     /**
      * ВЫБОР ГОДА
      */
     buttonYear:    document.getElementById('btn-year'),
-    pupopYear:     document.getElementById('popup-year'),
-    listPupopYear: document.getElementsByClassName('py-item'),
+    popupYear:     document.getElementById('popup-year'),
+    listPopupYear: document.getElementsByClassName('py-item'),
 
     /**
      * ОБЛАСТЬ КАЛЕНДАРЯ
      */
     calendar: document.getElementById('calendar'),
     colsCalendar: document.getElementsByClassName('col'),
+    
+    /**
+     * ДОБАВЛЕНИЕ ЗАПИСИ
+     */
+    popupAdd:        document.getElementById('popup-add'),
+    headerAdd:       document.getElementById('pa-header'),
+    inputTitleAdd:   document.getElementById('pa-input-title'),
+    inputUserAdd:    document.getElementById('pa-input-users'),
+    textareaAdd:     document.getElementById('pa-descr'),
+    statusAdd:       document.getElementById('pa-status'),
+    buttonSubmitAdd: document.getElementById('pa-btn-sumbit'),
+    buttonCancelAdd: document.getElementById('pa-btn-cancel'),
+    buttonCloseAdd:  document.getElementById('pa-btn-close'),
+
+    /**
+     * РЕДАКТИРОВАНИЕ ЗАПИСИ
+     */
+    popupEdit:        document.getElementById('popup-edit'),
+    headerEdit:       document.getElementById('pe-header'),
+    dateEdit:         document.getElementById('pe-date'),
+    usersEdit:        document.getElementById('pe-users'),
+    textareaEdit:     document.getElementById('pe-descr'),
+    statusEdit:       document.getElementById('pe-status'),
+    buttonSubmitEdit: document.getElementById('pe-btn-sumbit'),
+    buttonDeleteEdit: document.getElementById('pe-btn-delete'),
+    buttonCloseEdit:  document.getElementById('pe-btn-close'),
+
 
     createDivWithClass: function(name){ // Создадим элемент div с классом
         var element = document.createElement('div');
@@ -68,7 +95,7 @@ var View = {
     },
 
     createItemsMonth: function(){ // Создаем список месяцев в выпадающем списке
-        this.pupopMonth.innerHTML = '';
+        this.popupMonth.innerHTML = '';
 
         for(var i=0; i<this.listMonth.length; i++){
 
@@ -78,20 +105,20 @@ var View = {
             item.setAttribute('id', 'pm-item');
             item.innerHTML = month[0].toUpperCase() + month.slice(1);
 
-            this.pupopMonth.appendChild(item);
+            this.popupMonth.appendChild(item);
         }
     },
 
     markItemMonth: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active"
-        for(var i=0; i<this.listPupopMonth.length; i++){
+        for(var i=0; i<this.listPopupMonth.length; i++){
 
-            this.listPupopMonth[i].classList.remove('active');
+            this.listPopupMonth[i].classList.remove('active');
         }
 
         // Выбранному месяцу добавим класс "active"
-        this.listPupopMonth[ Model.date.getMonth() ].classList.add('active');
+        this.listPopupMonth[ Model.date.getMonth() ].classList.add('active');
     },
 
     changeLableYear: function(){ // Меняем метку выбранного года
@@ -102,7 +129,7 @@ var View = {
     createItemsYear: function(){ // Создаем список годов
         var years = Model.getListYear();
 
-        this.pupopYear.innerHTML = '';
+        this.popupYear.innerHTML = '';
 
         for(var i=0; i<years.length; i++){
 
@@ -111,21 +138,21 @@ var View = {
             item.setAttribute('id', 'py-item');
             item.innerHTML = years[i];
 
-            this.pupopYear.appendChild(item);
+            this.popupYear.appendChild(item);
         }
     },
 
     markItemYear: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active", а нужному элементу добавим
-        for(var i=0; i<this.listPupopYear.length; i++){
+        for(var i=0; i<this.listPopupYear.length; i++){
 
-            if( this.listPupopYear[i].innerHTML == Model.date.getFullYear() ) {
+            if( this.listPopupYear[i].innerHTML == Model.date.getFullYear() ) {
                 
-                this.listPupopYear[i].classList.add('active');
+                this.listPopupYear[i].classList.add('active');
             }
             else {
-                this.listPupopYear[i].classList.remove('active');
+                this.listPopupYear[i].classList.remove('active');
             } 
         }
     },
@@ -191,6 +218,62 @@ var View = {
         this.statusFastAdd.className = "status";
         this.statusFastAdd.classList.add(status);
         this.statusFastAdd.innerHTML = message;
+    },
+
+    removeMarkColCalendar: function(){ // У всех ячеек уберем фокус
+        for(var i=0; i<this.colsCalendar.length; i++){
+            this.colsCalendar[i].classList.remove('focus');
+        }
+    },
+
+    markColCalendar: function(e){ // Фокусируем выбранную ячейку
+        
+        // У всех ячеек уберем фокус
+        this.removeMarkColCalendar();
+
+        // Выбранную ячейку "фокусим"
+        e.classList.add('focus');
+    },
+
+    showPopupAdd: function(e){ // Показываем окно добавления записи
+        var date = Model.getDateIndex( e.getAttribute('date-index'));
+        var month = this.listMonths[ date[1] ];
+        this.headerAdd.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
+
+        this.popupAdd.classList.add('active');
+        this.popupAdd.setAttribute('date-index', e.getAttribute('date-index'));
+    },
+
+    hidePopupAdd: function(){ // Скрываем окно добавления записи
+        this.popupAdd.classList.remove('active');
+        this.inputTitleAdd.value = '';
+        this.inputUserAdd.value = '';
+        this.textareaAdd.value = '';
+        this.headerAdd.innerHTML = '';
+    },
+
+    showPopupEdit: function(e){ // Показываем окно редактирования записи
+        var index = e.getAttribute('date-index');
+        var date  = Model.getDateIndex( index );
+        var event = Model.getEvent( date );
+        var month = this.listMonths[ date[1] ];
+
+        this.headerEdit.innerHTML = event.title;
+        this.dateEdit.innerHTML   = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
+        this.usersEdit.innerHTML  = event.users;
+        this.textareaEdit.value   = event.descr; 
+
+        this.popupEdit.classList.add('active');
+        this.popupEdit.setAttribute('date-index', index);
+    },
+
+    hidePopupEdit: function(){ // Скрываем окно редактирования записи
+        this.popupEdit.classList.remove('active');
+        this.headerEdit.innerHTML = '';
+        this.dateEdit.innerHTML   = '';
+        this.usersEdit.innerHTML  = '';
+        this.textareaEdit.value   = '';
+
     },
 };
 
@@ -405,6 +488,10 @@ var Controller = {
         View.changeLableYear();
         View.markItemYear();
         View.showSelectedMonth();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonLater: function(){ // Нажали на кнопку "Следующий месяц"
@@ -414,6 +501,10 @@ var Controller = {
         View.changeLableYear();
         View.markItemYear();
         View.showSelectedMonth();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonCurrent: function(){ // Нажали на кнопку "Сегодня"
@@ -423,11 +514,15 @@ var Controller = {
         View.changeLableYear();
         View.markItemYear();
         View.showSelectedMonth();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonMonth: function(e){ // Нажали на кнопку "Название месяца"
-        if(e.target == View.buttonMonth) View.pupopMonth.classList.toggle('active');
-        if(e.target != View.buttonMonth && View.pupopMonth.classList.contains('active')) View.pupopMonth.classList.remove('active');
+        if(e.target == View.buttonMonth) View.popupMonth.classList.toggle('active');
+        if(e.target != View.buttonMonth && View.popupMonth.classList.contains('active')) View.popupMonth.classList.remove('active');
     },
 
     clickItemMonth: function(e){ // Нажали на месяц из списка
@@ -437,32 +532,44 @@ var Controller = {
         View.changeLableMonth();
         View.markItemMonth();
         View.showSelectedMonth();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
-    clickButtonYear: function(e){ // Нажали на кнопку "Название месяца"
-        if(e.target == View.buttonYear) View.pupopYear.classList.toggle('active');
-        if(e.target != View.buttonYear && View.pupopYear.classList.contains('active')) View.pupopYear.classList.remove('active');
+    clickButtonYear: function(e){ // Нажали на кнопку "Название года"
+        if(e.target == View.buttonYear) View.popupYear.classList.toggle('active');
+        if(e.target != View.buttonYear && View.popupYear.classList.contains('active')) View.popupYear.classList.remove('active');
     },
 
-    clickItemYear: function(e){ // Нажали на месяц из списка
+    clickItemYear: function(e){ // Нажали на год из списка
         Model.setSelectedYear( e.target.innerHTML );
         View.changeLableYear();
         View.markItemYear();
         View.showSelectedMonth();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonFastAdd: function(){ // Нажали на кнопку "Добавить"
         
-        View.pupopFastAdd.classList.toggle('active');
+        View.popupFastAdd.classList.toggle('active');
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonCloseFastAdd: function(){ // Нажали на кнопку "X" Popup Быстрое Добавление 
-        View.pupopFastAdd.classList.remove('active');
+        View.popupFastAdd.classList.remove('active');
         View.statusFastAdd.innerHTML = '';
     },
 
     clickButtonCancelFastAdd: function(){ // Нажали на кнопку "Отмена" Popup Быстрое Добавление
-        View.pupopFastAdd.classList.remove('active');
+        View.popupFastAdd.classList.remove('active');
         View.inputFastAdd.value = '';
         View.statusFastAdd.innerHTML = '';
     },
@@ -491,20 +598,77 @@ var Controller = {
     },
 
     clickButtonUpdate: function(){ // Нажали на кнопку "Обновить"
-        
         Model.refresh();
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
     },
 
-    clickColCalendar: function(e){
+    clickColCalendar: function(e){ // Нажали на ячейку календаря
 
         // Если кликнули на дочерние элементы, выбирем ячейку
         if( !e.target.classList.contains('col')) var col = e.target.parentNode;
         else var col = e.target;
 
+        // Если ячейка в фокусе
+        if(col.classList.contains('focus')) {
 
-        // console.log(e);
-        // console.log(col);
-        console.log(col.getBoundingClientRect());
+            View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+
+            if(col.classList.contains('event')) {
+                View.hidePopupEdit();  // Скрываем Popup Редактирования и очищаем поля
+            }
+            else View.hidePopupAdd(); // Скрываем Popup Добавления и очищаем поля
+        }
+        else {
+            View.markColCalendar(col); // Установим фокус на ячейку
+            View.hidePopupAdd();       // Скрываем Popup Добавления и очищаем поля
+            View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+
+            if(col.classList.contains('event')) {
+                View.showPopupEdit(col); // Показываем Popup Редактирования
+            }
+            else View.showPopupAdd(col); // Показываем Popup Добавления
+        }
+    },
+
+    clickButtonCloseAdd: function(){ // Нажали на кнопку "X" Popup Добавление
+        
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+    },
+
+    clickButtonCancelAdd: function(){ // Нажали на кнопку "Отмена" Popup Добавление
+        
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+    },
+
+    clickButtonSumbitAdd: function(e){ // Нажали на кнопку "Добавить" Popup Добавление
+        var popup = e.target.parentNode.parentNode;
+        var index = popup.getAttribute('date-index');
+
+        console.log(index);
+    },
+
+    clickButtonCloseEdit: function(){ // Нажали на кнопку "X" Popup Редактирование
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+    },
+
+    clickButtonDeleteEdit: function(e){ // Нажали на кнопку "Удалить" Popup Редактирование
+        var popup = e.target.parentNode.parentNode;
+        var index = popup.getAttribute('date-index');
+
+        console.log(index);
+    },
+
+    clickButtonSumbitEdit: function(e){
+        var popup = e.target.parentNode.parentNode;
+        var index = popup.getAttribute('date-index');
+
+        console.log(index);
     },
 };
 
@@ -577,8 +741,8 @@ var Controller = {
             });
 
             // На список месяцев вешаем обработчик клика
-            for(var i=0; i<View.listPupopMonth.length; i++){
-                View.listPupopMonth[i].addEventListener('click',  function(e){
+            for(var i=0; i<View.listPopupMonth.length; i++){
+                View.listPopupMonth[i].addEventListener('click',  function(e){
                     Controller.clickItemMonth(e);
                 });
             }
@@ -593,8 +757,8 @@ var Controller = {
             });
 
             // На список месяцев вешаем обработчик клика
-            for(var i=0; i<View.listPupopYear.length; i++){
-                View.listPupopYear[i].addEventListener('click',  function(e){
+            for(var i=0; i<View.listPopupYear.length; i++){
+                View.listPopupYear[i].addEventListener('click',  function(e){
                     Controller.clickItemYear(e);
                 });
             }
@@ -606,6 +770,37 @@ var Controller = {
             // На ячейки дней вешаем обработчик клика
             // Model.refreshColsEvent(); // Обнавление события клика на ячейках дней
 
+
+            /**
+             * POPUP ДОБАВИТЬ
+             */
+            // Нажали на кнопку "X" Popup Добавление
+            View.buttonCloseAdd.addEventListener('click', Controller.clickButtonCloseAdd);
+
+            // Нажали на кнопку "Отмена" Popup Добавление
+            View.buttonCancelAdd.addEventListener('click', Controller.clickButtonCancelAdd);
+
+            // Нажали на кнопку "Добавить" Popup Добавление
+            View.buttonSubmitAdd.addEventListener('click', function(e){
+                Controller.clickButtonSumbitAdd(e);
+            });
+
+
+            /**
+             * POPUP РЕДАКТИРОВАТЬ
+             */
+            // Нажали на кнопку "X" Popup Редактирование
+            View.buttonCloseEdit.addEventListener('click', Controller.clickButtonCloseEdit);
+
+            // Нажали на кнопку "Удалить" Popup Редактирование
+            View.buttonDeleteEdit.addEventListener('click', function(e){
+                Controller.clickButtonDeleteEdit(e);
+            });
+
+            // Нажали на кнопку "Сохранить" Popup Редактирование
+            View.buttonSubmitEdit.addEventListener('click', function(e){
+                Controller.clickButtonSumbitEdit(e);
+            });
         },
     };
 
