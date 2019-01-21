@@ -222,6 +222,12 @@ var View = {
         this.statusFastAdd.innerHTML = message;
     },
 
+    showStatusAdd: function(status, message){ // Показываем статус быстрого добавления записи
+        this.statusAdd.className = "status";
+        this.statusAdd.classList.add(status);
+        this.statusAdd.innerHTML = message;
+    },
+
     removeMarkColCalendar: function(){ // У всех ячеек уберем фокус
         for(var i=0; i<this.colsCalendar.length; i++){
             this.colsCalendar[i].classList.remove('focus');
@@ -242,6 +248,7 @@ var View = {
         var month = this.listMonths[ date[1] ];
         this.headerAdd.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
 
+        this.statusAdd.innerHTML = '';
         this.popupAdd.classList.add('active');
         this.popupAdd.setAttribute('date-index', e.getAttribute('date-index'));
     },
@@ -265,11 +272,12 @@ var View = {
         
         if( event.users != '' ) {
             this.inputUserEdit.style.display = 'none';
+            this.lableEdit.style.display = 'block';
             this.usersEdit.innerHTML = event.users;
         }
         else {
             this.inputUserEdit.style.display = 'block';
-            this.lableEdit.innerHTML = '';
+            this.lableEdit.style.display = 'none';
         }
         
         this.textareaEdit.value   = event.descr; 
@@ -525,7 +533,7 @@ var Model = {
         }
 
         var widthPopup = 300;
-        var heightPopup = 350;
+        var heightPopup = 375;
 
         if( (parent.right - cellar.right) > widthPopup ){
             popup.style.left = cellar.right + 'px';
@@ -744,7 +752,7 @@ var Controller = {
         var popup = e.target.parentNode.parentNode;
         var index = popup.getAttribute('date-index');
 
-        if( View.inputTitleAdd.value == '' ) View.showStatusFastAdd('error', 'Заполните поле "Событие"');
+        if( View.inputTitleAdd.value == '' ) View.showStatusAdd('error', 'Заполните поле "Событие"');
         else {
             var data = [
                 View.inputTitleAdd.value,
