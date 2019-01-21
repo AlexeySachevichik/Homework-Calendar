@@ -73,6 +73,8 @@ var View = {
     popupEdit:        document.getElementById('popup-edit'),
     headerEdit:       document.getElementById('pe-header'),
     dateEdit:         document.getElementById('pe-date'),
+    lableEdit:        document.getElementById('pe-user'),
+    inputUserEdit:    document.getElementById('pe-input-users'),
     usersEdit:        document.getElementById('pe-users'),
     textareaEdit:     document.getElementById('pe-descr'),
     statusEdit:       document.getElementById('pe-status'),
@@ -260,7 +262,16 @@ var View = {
 
         this.headerEdit.innerHTML = event.title;
         this.dateEdit.innerHTML   = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
-        this.usersEdit.innerHTML  = event.users;
+        
+        if( event.users != '' ) {
+            this.inputUserEdit.style.display = 'none';
+            this.usersEdit.innerHTML = event.users;
+        }
+        else {
+            this.inputUserEdit.style.display = 'block';
+            this.lableEdit.innerHTML = '';
+        }
+        
         this.textareaEdit.value   = event.descr; 
 
         this.popupEdit.classList.add('active');
@@ -273,7 +284,6 @@ var View = {
         this.dateEdit.innerHTML   = '';
         this.usersEdit.innerHTML  = '';
         this.textareaEdit.value   = '';
-
     },
 };
 
@@ -427,39 +437,66 @@ var Model = {
     // },
 
     splitStrFastAdd: function(str){ // Разбивка строки при быстром добавлении
-        var arr = str.split(', ');
-        var date = arr[0].split(" ");
 
-        return [date[1].toLowerCase(), +date[0], str.slice( str.indexOf(',') + 2 )];
+        var arr = str.split(', ');
+        var temp = arr[0].split(" ");
+
+        if(temp.length < 2)return false;
+
+        var data = [];
+        for( var i=0; i<temp.length; i++ ){
+            if( temp[i] != ''){
+                data.push( temp[i].trim() );
+            }
+        }
+
+        if(data.length < 2)return false;
+
+        data[1].toLowerCase();
+        var month = false;
+
+        if ( View.listMonths.indexOf( data[1] ) != -1 ) month = View.listMonths.indexOf( data[1] );
+        else if( View.listMonth.indexOf(  data[1] ) != -1 ) month = View.listMonth.indexOf ( data[1] );
+        else return false;
+
+        return [Model.date.getFullYear(), month, +data[0], str.slice( str.indexOf(',') + 2 ).trim()];
     },
 
-    ifCorrectFastAdd: function(str){ // Проверим корректность строки
-        var data = this.splitStrFastAdd(str);
+    ifDayBelongMonth: function(day){ // Есть ли указанное число в месяце
+        var date = new Date(day[0], day[1] + 1, 1);
 
-        if( !(data[1]>0 && data[1]<32) ) return false;
-        if( View.listMonths.indexOf( data[0] ) == -1 && View.listMonth.indexOf( data[0] ) == -1) return false;
+        // Установим посленний день месяца
+        date.setDate( date.getDate() - 1 );
+
+        return date.getDate() >= day[2] ? false : true ;
+    },
+
+    ifCorrectFastAdd: function(day){ // Проверим корректность строки
+
+        if( !day[1] ) return false;
+        if( !(day[2]>0 && day[2]<32) ) return false;
+        if( this.ifDayBelongMonth(day.slice(0,3)) ) return false;
+
         return true;
     },
 
-    addEventFastAdd: function(str){ // Добавление новой записи в объект
-        var data = this.splitStrFastAdd(str);
-        var month;
+    saveEventFastAdd: function(str){ // Добавление новой записи в объект
+        var data = this.splitStrFastAdd(str);        
 
-        if( View.listMonths.indexOf( data[0] ) != -1)     month = View.listMonths.indexOf( data[0] );
-        else if( View.listMonth.indexOf( data[0] ) != -1) month = View.listMonth.indexOf( data[0] );
+        if( this.ifCorrectFastAdd(data) ){
+            var index = this.getIndexDate( [data[0], data[1], data[2]] );
 
-        var index = this.getIndexDate( [this.date.getFullYear(), month, data[1]] );
+            this.setSelectedMonth(data[1]);
 
-        this.setSelectedMonth(month);
-
-        if( this.ifEvent(this.getDateIndex(index)) ) return false;
-        else {
-            this.events[index] = {
-                'title': data[2],
-                'users': '',
-                'descr': '',
-            };
-            return true;
+            if( this.ifEvent(this.getDateIndex(index)) ) return 'busy';
+            else {
+                this.events[index] = {
+                    'title': data[3],
+                    'users': '',
+                    'descr': '',
+                };
+                return true;
+            }
         }
     },
 
@@ -472,6 +509,45 @@ var Model = {
                 Controller.clickColCalendar(e);
             });
         }
+    },
+
+    setCoordinates: function(popup, col, par){ // Установим координаты popup окна
+
+        var parent = {
+            right:  Math.round(par.right + 20),
+            bottom: Math.round(par.bottom - 20),
+        };
+
+        var cellar = {
+            left:   Math.round(col.left - 10),
+            right:  Math.round(col.right + 10),
+            top:    Math.round(col.top + 10),
+        }
+
+        var widthPopup = 300;
+        var heightPopup = 350;
+
+        if( (parent.right - cellar.right) > widthPopup ){
+            popup.style.left = cellar.right + 'px';
+        }
+        else {
+            popup.style.left = cellar.left - widthPopup + 'px';
+        }
+
+        if( (parent.bottom - cellar.top) > heightPopup ){
+            popup.style.top = cellar.top + 'px';
+        }
+        else {
+            popup.style.top = parent.bottom - heightPopup + 'px';
+        }
+    },
+
+    saveEventAdd: function(index, data){
+        this.events[index] = {
+            'title': data[0],
+            'users': data[1],
+            'descr': data[2],
+        };
     },
 };
 
@@ -559,8 +635,8 @@ var Controller = {
         View.popupFastAdd.classList.toggle('active');
 
         View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        View.hidePopupAdd();          // Скрываем Popup Добавление и очищаем поля
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
     },
 
     clickButtonCloseFastAdd: function(){ // Нажали на кнопку "X" Popup Быстрое Добавление 
@@ -579,21 +655,23 @@ var Controller = {
 
         if( input == '' ) View.showStatusFastAdd('error', 'Заполните поле');
 
-        else if ( Model.ifCorrectFastAdd( input ) ) {
-            if( Model.addEventFastAdd( input ) ) {
-                View.showStatusFastAdd('succses', 'Данные добавлены');
-                View.changeLableMonth();
-                View.markItemMonth();
-                View.showSelectedMonth();
-                input = '';
-            }
-            else {
-                View.showStatusFastAdd('info', 'День занят');
-                View.changeLableMonth();
-                View.markItemMonth();
-                View.showSelectedMonth();
-            }
+        var respond = Model.saveEventFastAdd(input);
+
+        if( respond == 'busy' ) {
+            View.showStatusFastAdd('info', 'День занят');
+            View.changeLableMonth();
+            View.markItemMonth();
+            View.showSelectedMonth();
         }
+
+        else if( respond && respond != 'busy' ) {
+            View.showStatusFastAdd('succses', 'Данные добавлены');
+            View.changeLableMonth();
+            View.markItemMonth();
+            View.showSelectedMonth();
+            input = '';
+        }
+        
         else View.showStatusFastAdd('error', 'Данные некорректны');
     },
 
@@ -601,8 +679,10 @@ var Controller = {
         Model.refresh();
 
         View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        View.hidePopupAdd();          // Скрываем Popup и очищаем поля
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+        View.popupFastAdd.classList.remove('active');
+        View.statusFastAdd.innerHTML = '';
     },
 
     clickColCalendar: function(e){ // Нажали на ячейку календаря
@@ -610,6 +690,9 @@ var Controller = {
         // Если кликнули на дочерние элементы, выбирем ячейку
         if( !e.target.classList.contains('col')) var col = e.target.parentNode;
         else var col = e.target;
+
+        View.popupFastAdd.classList.remove('active');
+        View.statusFastAdd.innerHTML = '';
 
         // Если ячейка в фокусе
         if(col.classList.contains('focus')) {
@@ -627,9 +710,21 @@ var Controller = {
             View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
 
             if(col.classList.contains('event')) {
+                Model.setCoordinates(
+                    View.popupEdit,
+                    col.getBoundingClientRect(),
+                    col.parentNode.parentNode.getBoundingClientRect()
+                );
                 View.showPopupEdit(col); // Показываем Popup Редактирования
             }
-            else View.showPopupAdd(col); // Показываем Popup Добавления
+            else {
+                Model.setCoordinates(
+                    View.popupAdd,
+                    col.getBoundingClientRect(),
+                    col.parentNode.parentNode.getBoundingClientRect()
+                );
+                View.showPopupAdd(col); // Показываем Popup Добавления
+            }
         }
     },
 
@@ -649,7 +744,19 @@ var Controller = {
         var popup = e.target.parentNode.parentNode;
         var index = popup.getAttribute('date-index');
 
-        console.log(index);
+        if( View.inputTitleAdd.value == '' ) View.showStatusFastAdd('error', 'Заполните поле "Событие"');
+        else {
+            var data = [
+                View.inputTitleAdd.value,
+                View.inputUserAdd.value,
+                View.textareaAdd.value
+            ];
+
+            Model.saveEventAdd(index, data);
+            View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+            View.hidePopupAdd(); // Скрываем Popup и очищаем поля
+            View.showSelectedMonth();
+        };
     },
 
     clickButtonCloseEdit: function(){ // Нажали на кнопку "X" Popup Редактирование
@@ -664,15 +771,13 @@ var Controller = {
         console.log(index);
     },
 
-    clickButtonSumbitEdit: function(e){
+    clickButtonSumbitEdit: function(e){ // Нажали на кнопку "Сохранить" Popup Редактирование
         var popup = e.target.parentNode.parentNode;
         var index = popup.getAttribute('date-index');
 
         console.log(index);
     },
 };
-
-
 
 
 
