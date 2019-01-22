@@ -404,6 +404,7 @@ nav {
                 background: $back02;
             }
 
+            &.current.focus,
             &.event.focus{
                 background: $acent02;
             }

@@ -513,7 +513,7 @@ nav .current-date #popup-year .py-item.active:hover {
 .calendar .row .col.current.event {
   background: #f4f4f4;
 }
-.calendar .row .col.event.focus {
+.calendar .row .col.current.focus, .calendar .row .col.event.focus {
   background: #c1e4ff;
 }
 .calendar .row .col .col-date,

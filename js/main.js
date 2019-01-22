@@ -268,8 +268,9 @@ var View = {
         var month = this.listMonths[ date[1] ];
 
         this.headerEdit.innerHTML = event.title;
-        this.dateEdit.innerHTML   = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
-        
+        this.dateEdit.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
+        this.inputUserEdit.value = '';
+
         if( event.users != '' ) {
             this.inputUserEdit.style.display = 'none';
             this.lableEdit.style.display = 'block';
@@ -280,7 +281,7 @@ var View = {
             this.lableEdit.style.display = 'none';
         }
         
-        this.textareaEdit.value   = event.descr; 
+        this.textareaEdit.value = event.descr; 
 
         this.popupEdit.classList.add('active');
         this.popupEdit.setAttribute('date-index', index);
@@ -342,7 +343,6 @@ var Model = {
 
     refresh: function(){ // Обнавление блоков (элементов) при изменении данных
         Model.setCurrentDate();   // Установим текущую дату
-        Model.readJsonFile();     // Считываем данные
         View.changeLableMonth();  // Выведем метку месяца
         View.markItemMonth();     // Выделим текущий месяц
         View.changeLableYear();   // Выведем метку года
@@ -480,16 +480,15 @@ var Model = {
     },
 
     ifCorrectFastAdd: function(day){ // Проверим корректность строки
-
-        if( !day[1] ) return false;
+       
+        if( day[1] === false ) return false;
         if( !(day[2]>0 && day[2]<32) ) return false;
         if( this.ifDayBelongMonth(day.slice(0,3)) ) return false;
-
         return true;
     },
 
     saveEventFastAdd: function(str){ // Добавление новой записи в объект
-        var data = this.splitStrFastAdd(str);        
+        var data = this.splitStrFastAdd(str);
 
         if( this.ifCorrectFastAdd(data) ){
             var index = this.getIndexDate( [data[0], data[1], data[2]] );
@@ -550,12 +549,23 @@ var Model = {
         }
     },
 
-    saveEventAdd: function(index, data){
+    deleteEvent: function(index){ // Удаление события
+
+        delete this.events[index];
+    },
+
+    saveNewEvent: function(index, data){ // Добавим новое событие
         this.events[index] = {
             'title': data[0],
             'users': data[1],
             'descr': data[2],
         };
+    },
+
+    saveEvent: function(index, data){ // Сохраним новое событие
+
+        if( data[0] != '' ) this.events[index]['users'] = data[0];
+        if( data[1] != '' ) this.events[index]['descr'] = data[1];
     },
 };
 
@@ -662,28 +672,31 @@ var Controller = {
         var input = View.inputFastAdd.value;
 
         if( input == '' ) View.showStatusFastAdd('error', 'Заполните поле');
+        else {
 
-        var respond = Model.saveEventFastAdd(input);
+            var respond = Model.saveEventFastAdd(input);
 
-        if( respond == 'busy' ) {
-            View.showStatusFastAdd('info', 'День занят');
-            View.changeLableMonth();
-            View.markItemMonth();
-            View.showSelectedMonth();
-        }
+            console.log(respond);
 
-        else if( respond && respond != 'busy' ) {
-            View.showStatusFastAdd('succses', 'Данные добавлены');
-            View.changeLableMonth();
-            View.markItemMonth();
-            View.showSelectedMonth();
-            input = '';
-        }
-        
-        else View.showStatusFastAdd('error', 'Данные некорректны');
+            if( respond == 'busy' ) {
+                View.showStatusFastAdd('info', 'День занят');
+                View.changeLableMonth();
+                View.markItemMonth();
+                View.showSelectedMonth();
+            }
+            else if( respond && respond != 'busy' ) {
+                View.showStatusFastAdd('succses', 'Данные добавлены');
+                View.changeLableMonth();
+                View.markItemMonth();
+                View.showSelectedMonth();
+                input = '';
+            }
+            else View.showStatusFastAdd('error', 'Данные некорректны');
+        };
     },
 
     clickButtonUpdate: function(){ // Нажали на кнопку "Обновить"
+        Model.events = {};
         Model.refresh();
 
         View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
@@ -760,7 +773,8 @@ var Controller = {
                 View.textareaAdd.value
             ];
 
-            Model.saveEventAdd(index, data);
+            Model.saveNewEvent(index, data);
+
             View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
             View.hidePopupAdd(); // Скрываем Popup и очищаем поля
             View.showSelectedMonth();
@@ -776,14 +790,49 @@ var Controller = {
         var popup = e.target.parentNode.parentNode;
         var index = popup.getAttribute('date-index');
 
-        console.log(index);
+        Model.deleteEvent(index);
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+        View.showSelectedMonth();
     },
 
     clickButtonSumbitEdit: function(e){ // Нажали на кнопку "Сохранить" Popup Редактирование
         var popup = e.target.parentNode.parentNode;
         var index = popup.getAttribute('date-index');
 
-        console.log(index);
+        if( View.inputUserEdit.style.display == 'block' ){
+            var users = View.inputUserEdit.value;
+        }
+        else if( View.lableEdit.style.display == 'block'){
+            var users = View.usersEdit.innerHTML;
+        }
+
+        var data = [ users, View.textareaEdit.value];
+
+        Model.saveEvent(index, data);
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+        View.showSelectedMonth();
+    },
+
+    focusInputSerach: function(){ // При фокусировке на поле поиска скрываем все окна
+
+        View.popupFastAdd.classList.remove('active');
+        View.inputFastAdd.value = '';
+        View.statusFastAdd.innerHTML = '';
+
+        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
+        View.hidePopupAdd();          // Скрываем Popup Добавления и очищаем поля
+        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+    },
+
+    keyupInputSerach: function(){ // Изменение поля поиска
+        var str = View.inputSerach.value;
+        console.log(str);
+
+
     },
 };
 
@@ -795,6 +844,7 @@ var Controller = {
          * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
          */
         init: function(){
+            Model.readJsonFile();     // Считываем данные
             View.createItemsYear();   // Создадим список годов
             View.createItemsMonth();  // Создадим список месяцев
             Model.refresh();
@@ -914,6 +964,16 @@ var Controller = {
             View.buttonSubmitEdit.addEventListener('click', function(e){
                 Controller.clickButtonSumbitEdit(e);
             });
+
+
+            /**
+             * ПОИСК
+             */
+            // Кликнули на поле поиска
+            View.inputSerach.addEventListener('focus', Controller.focusInputSerach);
+
+            // Изменили value поиска
+            View.inputSerach.addEventListener('keyup', Controller.keyupInputSerach);
         },
     };
 
