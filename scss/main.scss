@@ -197,6 +197,7 @@ header {
     }
 
     .search-group {
+        position: relative;
         
         svg {
             display: block;
@@ -212,7 +213,58 @@ header {
         input {
             display: block;
             width: 250px;
-        } 
+        }
+
+        #search-result {
+            display: none;
+            position: absolute;
+            top: 45px;
+            left: 27px;
+            width: 250px;
+            max-height: 500px;
+            padding: 5px;
+            background: $back01;
+            border: 1px solid $font04;
+            box-shadow: $shadow02;
+            overflow: hidden;
+            overflow-y: auto;
+
+            &.active {
+                display: block;
+            }
+
+            .sr-item {
+                width: 100%;
+                padding: 7px 15px;
+                cursor: pointer;
+                border-bottom: 1px solid $border01;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &:hover {
+                    background: $acent01;
+
+                    .sri-date,
+                    .sri-title {
+                        color: $back01;
+                    }
+                }
+
+                .sri-title {
+                    font-weight: 700;
+                    font-size: 15px;
+                    color: $font01;
+                }
+
+                .sri-date {
+                    font-weight: 400;
+                    font-size: 13px;
+                    color: $font03;
+                }
+            }
+        }
     }
 }
 

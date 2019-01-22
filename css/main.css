@@ -306,6 +306,9 @@ header .button-group .popup-fast-add .close svg {
 header .button-group .popup-fast-add .close svg polygon {
   fill: #9e9e9e;
 }
+header .search-group {
+  position: relative;
+}
 header .search-group svg {
   display: block;
   width: 15px;
@@ -318,6 +321,50 @@ header .search-group svg path {
 header .search-group input {
   display: block;
   width: 250px;
+}
+header .search-group #search-result {
+  display: none;
+  position: absolute;
+  top: 45px;
+  left: 27px;
+  width: 250px;
+  max-height: 500px;
+  padding: 5px;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  overflow-y: auto;
+}
+header .search-group #search-result.active {
+  display: block;
+}
+header .search-group #search-result .sr-item {
+  width: 100%;
+  padding: 7px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #e4e4e4;
+}
+header .search-group #search-result .sr-item:last-child {
+  border-bottom: none;
+}
+header .search-group #search-result .sr-item:hover {
+  background: #006fca;
+}
+header .search-group #search-result .sr-item:hover .sri-date,
+header .search-group #search-result .sr-item:hover .sri-title {
+  color: #ffffff;
+}
+header .search-group #search-result .sr-item .sri-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0b0b0b;
+}
+header .search-group #search-result .sr-item .sri-date {
+  font-weight: 400;
+  font-size: 13px;
+  color: #9e9e9e;
 }
 
 nav {

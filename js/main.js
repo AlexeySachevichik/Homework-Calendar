@@ -26,6 +26,8 @@ var View = {
      * ПОИСК
      */
     inputSerach: document.getElementById('input-search'),
+    resultSerach: document.getElementById('search-result'),
+    itemSearch: document.getElementsByClassName('sr-item'),
 
     /**
      * МЕСЯЦ РАНЕЕ, МЕСЯЦ ПОЗЖЕ, СЕГОДНЯ
@@ -82,20 +84,20 @@ var View = {
     buttonDeleteEdit: document.getElementById('pe-btn-delete'),
     buttonCloseEdit:  document.getElementById('pe-btn-close'),
 
-
+    //
     createDivWithClass: function(name){ // Создадим элемент div с классом
         var element = document.createElement('div');
         element.classList.add(name);
         return element;
     },
 
+    //
     changeLableMonth: function(){ // Меняем метку выбранного месяца
-
         var month = this.listMonth[ Model.date.getMonth() ];
-
         this.buttonMonth.innerHTML = month[0].toUpperCase() + month.slice(1);
     },
 
+    //
     createItemsMonth: function(){ // Создаем список месяцев в выпадающем списке
         this.popupMonth.innerHTML = '';
 
@@ -111,6 +113,7 @@ var View = {
         }
     },
 
+    //
     markItemMonth: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active"
@@ -123,11 +126,13 @@ var View = {
         this.listPopupMonth[ Model.date.getMonth() ].classList.add('active');
     },
 
+    //
     changeLableYear: function(){ // Меняем метку выбранного года
         
         this.buttonYear.innerHTML = Model.date.getFullYear();
     },
 
+    //
     createItemsYear: function(){ // Создаем список годов
         var years = Model.getListYear();
 
@@ -144,6 +149,7 @@ var View = {
         }
     },
 
+    //
     markItemYear: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active", а нужному элементу добавим
@@ -159,6 +165,7 @@ var View = {
         }
     },
 
+    //
     showSelectedMonth: function(){ // Показываем выбранный месяц
         var days = Model.getDaysCurrentMonth();
         var quantityWeaks = days.length / 7;
@@ -222,7 +229,7 @@ var View = {
         this.statusFastAdd.innerHTML = message;
     },
 
-    showStatusAdd: function(status, message){ // Показываем статус быстрого добавления записи
+    showStatusAdd: function(status, message){ // Показываем статус добавления записи
         this.statusAdd.className = "status";
         this.statusAdd.classList.add(status);
         this.statusAdd.innerHTML = message;
@@ -235,9 +242,6 @@ var View = {
     },
 
     markColCalendar: function(e){ // Фокусируем выбранную ячейку
-        
-        // У всех ячеек уберем фокус
-        this.removeMarkColCalendar();
 
         // Выбранную ячейку "фокусим"
         e.classList.add('focus');
@@ -294,8 +298,74 @@ var View = {
         this.usersEdit.innerHTML  = '';
         this.textareaEdit.value   = '';
     },
-};
 
+    showSearchResult: function(result){ // Показываем список поиска
+        this.resultSerach.innerHTML = '';
+        this.resultSerach.classList.add('active');
+
+        for(var i=0; i<result.length; i++){
+            var day = Model.getDateIndex(result[i]);
+
+            var item  = this.createDivWithClass('sr-item');
+            item.setAttribute("date-index", result[i]);
+            var title = this.createDivWithClass('sri-title');
+            var date  = this.createDivWithClass('sri-date');
+
+            title.innerHTML = Model.events[result[i]].title;
+
+            var month = this.listMonths[ day[1] ];
+            date.innerHTML  = '' + day[2] + ' ' + month[0].toUpperCase() + month.slice(1) + ' ' + day[0];
+
+            item.appendChild(title);
+            item.appendChild(date);
+            this.resultSerach.appendChild(item);
+        };
+
+        Model.refreshItemSearch();
+    },
+
+    hideSearchResult: function(){
+        this.resultSerach.innerHTML = '';
+        this.resultSerach.classList.remove('active');
+    },
+
+    onfocusSearch: function(){
+        this.inputSerach.value = '';
+        this.resultSerach.innerHTML = '';
+        this.resultSerach.classList.remove('active');
+    },
+
+    showPopupFastAdd: function(){
+        
+        this.popupFastAdd.classList.add('active');
+    },
+
+    hidePopupFastAdd: function(){
+        this.popupFastAdd.classList.remove('active');
+        this.statusFastAdd.innerHTML = '';
+        this.inputFastAdd.value = '';
+    },
+
+    showPopupMonth: function(){
+        
+        View.popupMonth.classList.add('active');
+    },
+
+    hidePopupMonth: function(){
+
+        View.popupMonth.classList.remove('active');
+    },
+
+    showPopupYear: function(){
+        
+        View.popupYear.classList.add('active');
+    },
+
+    hidePopupYear: function(){
+
+        View.popupYear.classList.remove('active');
+    },
+};
 
 
 
@@ -339,15 +409,6 @@ var Model = {
     getEvent: function(day){ // Получим данные события
         
         return this.events[this.getIndexDate(day)];
-    },
-
-    refresh: function(){ // Обнавление блоков (элементов) при изменении данных
-        Model.setCurrentDate();   // Установим текущую дату
-        View.changeLableMonth();  // Выведем метку месяца
-        View.markItemMonth();     // Выделим текущий месяц
-        View.changeLableYear();   // Выведем метку года
-        View.markItemYear();      // Выделим текущий год
-        View.showSelectedMonth(); // Выведем календарь
     },
 
     setCurrentDate: function(){ // Устанавливим текущую дату
@@ -567,6 +628,79 @@ var Model = {
         if( data[0] != '' ) this.events[index]['users'] = data[0];
         if( data[1] != '' ) this.events[index]['descr'] = data[1];
     },
+
+    searchEvents: function(str) { // Поиск событий по строке
+        if(str == '' || typeof(str) != 'string') return false;
+        var strArr = str.split(" ");
+        var result = {};
+
+        for(var i=0; i<strArr.length; i++){
+            strArr[i] = ("" + strArr[i]).toLowerCase();
+
+            newEvent:
+            for( var key in this.events ){
+
+                var date = this.getDateIndex(key);
+
+                if( ('' + date[0]) == strArr[i] ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+
+                    continue newEvent;
+                }
+                else if( View.listMonths[ date[1] ].indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+                else if( View.listMonth [ date[1] ].indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+                else if( ('' + date[2]).indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+                else if( this.events[key].title.toLowerCase().indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+                else if( this.events[key].users.toLowerCase().indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+                else if( this.events[key].descr.toLowerCase().indexOf(strArr[i]) != -1 ){
+                    if( result[key] !== undefined ) result[key]++;
+                    else result[key] = 1;
+                    continue newEvent;
+                }
+            }
+        }
+
+        var searchIndex = [];
+
+        for( var key in result ){
+            if( result[key] == strArr.length ) searchIndex.push(key);
+        }
+
+        return searchIndex.length < 1 ? false : searchIndex;
+    },
+
+    refreshItemSearch: function(){ // Обнавление события клика на списке поиска
+        View.itemSearch = document.getElementsByClassName('sr-item');
+
+        for(var i=0; i<View.itemSearch.length; i++){
+
+            View.itemSearch[i].addEventListener('click', function(e){
+                Controller.clickItemSearch(e);
+            });
+        }
+    },
+
 };
 
 
@@ -575,97 +709,149 @@ var Model = {
 
 var Controller = {
 
-    clickButtonEarlier: function(){ // Нажали на кнопку "Предыдущий месяц" 
-        Model.setEarlierMonth();
-        View.changeLableMonth();
-        View.markItemMonth();
-        View.changeLableYear();
-        View.markItemYear();
-        View.showSelectedMonth();
+    clickButtonEarlier: function(){ // Нажали на кнопку "Предыдущий месяц"
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        Model.setEarlierMonth();        // Установим на месяц раньше
+
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
+
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickButtonLater: function(){ // Нажали на кнопку "Следующий месяц"
-        Model.setLaterMonth();
-        View.changeLableMonth();
-        View.markItemMonth();
-        View.changeLableYear();
-        View.markItemYear();
-        View.showSelectedMonth();
+        
+        Model.setLaterMonth();          // Установим на месяц позже
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
+
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickButtonCurrent: function(){ // Нажали на кнопку "Сегодня"
-        Model.setCurrentDate();
-        View.changeLableMonth();
-        View.markItemMonth();
-        View.changeLableYear();
-        View.markItemYear();
-        View.showSelectedMonth();
+       
+        Model.setCurrentDate();         // Установим текущую дату
+        
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickButtonMonth: function(e){ // Нажали на кнопку "Название месяца"
-        if(e.target == View.buttonMonth) View.popupMonth.classList.toggle('active');
-        if(e.target != View.buttonMonth && View.popupMonth.classList.contains('active')) View.popupMonth.classList.remove('active');
+
+        if(e.target == View.buttonMonth){
+
+            View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+            View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+            View.hidePopupAdd();            // Скроем окно добавления
+            View.hidePopupEdit();           // Скроем окно редактирования
+            View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+
+            if( View.popupMonth.classList.contains('active') ){
+                View.hidePopupMonth();       // Скроем список месяцев
+            }
+            else {
+                View.showPopupMonth();       // Покажем список месяцев
+            }
+        };
+        if(e.target != View.buttonMonth && View.popupMonth.classList.contains('active')){
+             View.hidePopupMonth();       // Скроем список месяцев
+        };
     },
 
     clickItemMonth: function(e){ // Нажали на месяц из списка
+
         var month = e.target.innerHTML;
         var index = View.listMonth.indexOf(month.toLowerCase());
-        Model.setSelectedMonth(index);
-        View.changeLableMonth();
-        View.markItemMonth();
-        View.showSelectedMonth();
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        Model.setSelectedMonth(index);  // Установим на выбранный месяц
+
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
     },
 
     clickButtonYear: function(e){ // Нажали на кнопку "Название года"
-        if(e.target == View.buttonYear) View.popupYear.classList.toggle('active');
-        if(e.target != View.buttonYear && View.popupYear.classList.contains('active')) View.popupYear.classList.remove('active');
+
+        if(e.target == View.buttonYear) {
+
+            View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+            View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+            View.hidePopupAdd();            // Скроем окно добавления
+            View.hidePopupEdit();           // Скроем окно редактирования
+            View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+
+            if( View.popupYear.classList.contains('active') ){
+                View.hidePopupYear();       // Скроем список годов
+            }
+            else {
+                View.showPopupYear();       // Покажем список годов
+            }
+        };
+        if(e.target != View.buttonYear && View.popupYear.classList.contains('active')){
+            View.hidePopupYear();       // Скроем список годов
+        };
     },
 
     clickItemYear: function(e){ // Нажали на год из списка
+        
         Model.setSelectedYear( e.target.innerHTML );
-        View.changeLableYear();
-        View.markItemYear();
-        View.showSelectedMonth();
-
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd(); // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+        
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
     },
 
     clickButtonFastAdd: function(){ // Нажали на кнопку "Добавить"
-        
-        View.popupFastAdd.classList.toggle('active');
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd();          // Скрываем Popup Добавление и очищаем поля
-        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        
+        if( View.popupFastAdd.classList.contains('active') ){
+            View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+        }
+        else {
+            View.showPopupFastAdd();        // Покажем окно быстрого добавления
+        }
     },
 
     clickButtonCloseFastAdd: function(){ // Нажали на кнопку "X" Popup Быстрое Добавление 
-        View.popupFastAdd.classList.remove('active');
-        View.statusFastAdd.innerHTML = '';
+        
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickButtonCancelFastAdd: function(){ // Нажали на кнопку "Отмена" Popup Быстрое Добавление
-        View.popupFastAdd.classList.remove('active');
-        View.inputFastAdd.value = '';
-        View.statusFastAdd.innerHTML = '';
+        
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickButtonSumbitFastAdd: function(){ // Нажали на кнопку "Добавить" Popup Быстрое Добавление
@@ -675,8 +861,6 @@ var Controller = {
         else {
 
             var respond = Model.saveEventFastAdd(input);
-
-            console.log(respond);
 
             if( respond == 'busy' ) {
                 View.showStatusFastAdd('info', 'День занят');
@@ -697,13 +881,20 @@ var Controller = {
 
     clickButtonUpdate: function(){ // Нажали на кнопку "Обновить"
         Model.events = {};
-        Model.refresh();
 
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd();          // Скрываем Popup и очищаем поля
-        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
-        View.popupFastAdd.classList.remove('active');
-        View.statusFastAdd.innerHTML = '';
+        Model.setCurrentDate();         // Установим текущую дату
+        
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
+
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     clickColCalendar: function(e){ // Нажали на ячейку календаря
@@ -712,23 +903,16 @@ var Controller = {
         if( !e.target.classList.contains('col')) var col = e.target.parentNode;
         else var col = e.target;
 
-        View.popupFastAdd.classList.remove('active');
-        View.statusFastAdd.innerHTML = '';
-
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+        
         // Если ячейка в фокусе
-        if(col.classList.contains('focus')) {
+        if(!col.classList.contains('focus')) {
 
-            View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-
-            if(col.classList.contains('event')) {
-                View.hidePopupEdit();  // Скрываем Popup Редактирования и очищаем поля
-            }
-            else View.hidePopupAdd(); // Скрываем Popup Добавления и очищаем поля
-        }
-        else {
-            View.markColCalendar(col); // Установим фокус на ячейку
-            View.hidePopupAdd();       // Скрываем Popup Добавления и очищаем поля
-            View.hidePopupEdit();      // Скрываем Popup Редактирования и очищаем поля
+            View.markColCalendar(col);      // Отмечам ячейку
 
             if(col.classList.contains('event')) {
                 Model.setCoordinates(
@@ -736,7 +920,7 @@ var Controller = {
                     col.getBoundingClientRect(),
                     col.parentNode.parentNode.getBoundingClientRect()
                 );
-                View.showPopupEdit(col); // Показываем Popup Редактирования
+                View.showPopupEdit(col);        // Показываем окно редактирования
             }
             else {
                 Model.setCoordinates(
@@ -744,7 +928,7 @@ var Controller = {
                     col.getBoundingClientRect(),
                     col.parentNode.parentNode.getBoundingClientRect()
                 );
-                View.showPopupAdd(col); // Показываем Popup Добавления
+                View.showPopupAdd(col);         // Показываем окно добавления
             }
         }
     },
@@ -819,20 +1003,37 @@ var Controller = {
 
     focusInputSerach: function(){ // При фокусировке на поле поиска скрываем все окна
 
-        View.popupFastAdd.classList.remove('active');
-        View.inputFastAdd.value = '';
-        View.statusFastAdd.innerHTML = '';
-
-        View.removeMarkColCalendar(); // Убираем фокус со всех ячеек
-        View.hidePopupAdd();          // Скрываем Popup Добавления и очищаем поля
-        View.hidePopupEdit();         // Скрываем Popup Редактирования и очищаем поля
+        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        View.hidePopupAdd();            // Скроем окно добавления
+        View.hidePopupEdit();           // Скроем окно редактирования
+        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
     },
 
     keyupInputSerach: function(){ // Изменение поля поиска
-        var str = View.inputSerach.value;
-        console.log(str);
+        
+        Model.refreshItemSearch();
 
+        var result = Model.searchEvents( View.inputSerach.value );
 
+        if( result ) {
+            View.showSearchResult(result); // вывод результатов
+        }
+        else {
+            View.hideSearchResult(); // спрятать результаты
+        }
+    },
+
+    clickItemSearch: function(e){ // Кликнули на элемент из списка поиска
+
+        // Если кликнули на дочерние элементы, выбирем ячейку
+        if( !e.target.classList.contains('sr-item')) var item = e.target.parentNode;
+        else var item = e.target;
+
+        var index = item.getAttribute("date-index");
+        var day = Model.getDateIndex(index);
+
+        console.log(index);
+        console.log(day);
     },
 };
 
@@ -844,10 +1045,18 @@ var Controller = {
          * ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
          */
         init: function(){
-            Model.readJsonFile();     // Считываем данные
-            View.createItemsYear();   // Создадим список годов
-            View.createItemsMonth();  // Создадим список месяцев
-            Model.refresh();
+
+            Model.readJsonFile();           // Считываем данные
+            Model.setCurrentDate();         // Установим текущую дату
+
+            View.createItemsYear();         // Создадим список годов
+            View.createItemsMonth();        // Создадим список месяцев
+        
+            View.changeLableMonth();        // Поменяем название месяца
+            View.changeLableYear();         // Поменяем номер года
+            View.markItemMonth();           // Отметим месяц в списке
+            View.markItemYear();            // Отметим год в списке
+            View.showSelectedMonth();       // Выведем сетку календаря с событиями
 
             this.main();
             this.event();
