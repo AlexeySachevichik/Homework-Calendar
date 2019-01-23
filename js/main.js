@@ -84,20 +84,17 @@ var View = {
     buttonDeleteEdit: document.getElementById('pe-btn-delete'),
     buttonCloseEdit:  document.getElementById('pe-btn-close'),
 
-    //
     createDivWithClass: function(name){ // Создадим элемент div с классом
         var element = document.createElement('div');
         element.classList.add(name);
         return element;
     },
 
-    //
     changeLableMonth: function(){ // Меняем метку выбранного месяца
         var month = this.listMonth[ Model.date.getMonth() ];
         this.buttonMonth.innerHTML = month[0].toUpperCase() + month.slice(1);
     },
 
-    //
     createItemsMonth: function(){ // Создаем список месяцев в выпадающем списке
         this.popupMonth.innerHTML = '';
 
@@ -113,7 +110,6 @@ var View = {
         }
     },
 
-    //
     markItemMonth: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active"
@@ -126,13 +122,11 @@ var View = {
         this.listPopupMonth[ Model.date.getMonth() ].classList.add('active');
     },
 
-    //
     changeLableYear: function(){ // Меняем метку выбранного года
         
         this.buttonYear.innerHTML = Model.date.getFullYear();
     },
 
-    //
     createItemsYear: function(){ // Создаем список годов
         var years = Model.getListYear();
 
@@ -149,7 +143,6 @@ var View = {
         }
     },
 
-    //
     markItemYear: function(){ // Выделяем выбранный месяц в списке
 
         // Удаляем у всех элементов класс "active", а нужному элементу добавим
@@ -165,7 +158,6 @@ var View = {
         }
     },
 
-    //
     showSelectedMonth: function(){ // Показываем выбранный месяц
         var days = Model.getDaysCurrentMonth();
         var quantityWeaks = days.length / 7;
@@ -320,8 +312,6 @@ var View = {
             item.appendChild(date);
             this.resultSerach.appendChild(item);
         };
-
-        Model.refreshItemSearch();
     },
 
     hideSearchResult: function(){
@@ -387,8 +377,6 @@ var Model = {
                 'descr': list[i].descr
             };
         };
-
-        // console.log(this.events);
     },
 
     ifToday: function(day){ // Если дата сегодня
@@ -626,7 +614,7 @@ var Model = {
     saveEvent: function(index, data){ // Сохраним новое событие
 
         if( data[0] != '' ) this.events[index]['users'] = data[0];
-        if( data[1] != '' ) this.events[index]['descr'] = data[1];
+        this.events[index]['descr'] = data[1];
     },
 
     searchEvents: function(str) { // Поиск событий по строке
@@ -698,6 +686,22 @@ var Model = {
             View.itemSearch[i].addEventListener('click', function(e){
                 Controller.clickItemSearch(e);
             });
+        }
+    },
+
+    readRandomData: function(value){
+        for(var i=0; i<=value; i++){
+            this.events[Random.getIendex()] = {
+                'title': Random.title(),
+                'users': Random.users(),
+                'descr': Random.descr(),
+            };
+        };
+    },
+
+    searchCellOfIndex: function(index){
+        for(var i=0; i<View.colsCalendar.length; i++){
+            if( View.colsCalendar[i].getAttribute('date-index') == index) return View.colsCalendar[i];
         }
     },
 
@@ -902,16 +906,26 @@ var Controller = {
         // Если кликнули на дочерние элементы, выбирем ячейку
         if( !e.target.classList.contains('col')) var col = e.target.parentNode;
         else var col = e.target;
-
-        View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+        
         View.onfocusSearch();           // Уберем результаты поиска и очистим поле
         View.hidePopupAdd();            // Скроем окно добавления
-        View.hidePopupEdit();           // Скроем окно редактирования
-        View.hidePopupFastAdd();        // Скроем окно быстрого добавления
-        
-        // Если ячейка в фокусе
-        if(!col.classList.contains('focus')) {
 
+        // Если ячейка в фокусе
+        if(col.classList.contains('focus')) {
+
+            View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
+
+            if(col.classList.contains('event')) {
+                View.hidePopupEdit();           // Скроем окно редактирования
+            }
+            else {
+                View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+            }
+        }
+        else {
+            View.hidePopupEdit();           // Скроем окно редактирования
+            View.hidePopupFastAdd();        // Скроем окно быстрого добавления
+            View.removeMarkColCalendar();   // Уберем фокус на ячейке дня
             View.markColCalendar(col);      // Отмечам ячейку
 
             if(col.classList.contains('event')) {
@@ -1010,13 +1024,12 @@ var Controller = {
     },
 
     keyupInputSerach: function(){ // Изменение поля поиска
-        
-        Model.refreshItemSearch();
 
         var result = Model.searchEvents( View.inputSerach.value );
 
         if( result ) {
             View.showSearchResult(result); // вывод результатов
+            Model.refreshItemSearch();
         }
         else {
             View.hideSearchResult(); // спрятать результаты
@@ -1032,8 +1045,25 @@ var Controller = {
         var index = item.getAttribute("date-index");
         var day = Model.getDateIndex(index);
 
-        console.log(index);
-        console.log(day);
+        Model.setSelectedMonth(day[1]);
+        Model.setSelectedYear(day[0]);
+
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.changeLableMonth();        // Поменяем название месяца
+        View.changeLableYear();         // Поменяем номер года
+        View.markItemMonth();           // Отметим месяц в списке
+        View.markItemYear();            // Отметим год в списке
+        View.showSelectedMonth();       // Выведем сетку календаря с событиями
+
+        // фокусим ячейку и выводим окно редактирования
+        var cell = Model.searchCellOfIndex(index);
+        View.markColCalendar(cell);      // Отмечам ячейку
+        Model.setCoordinates(
+            View.popupEdit,
+            cell.getBoundingClientRect(),
+            cell.parentNode.parentNode.getBoundingClientRect()
+        );
+        View.showPopupEdit(cell);        // Показываем окно редактирования
     },
 };
 
@@ -1046,7 +1076,8 @@ var Controller = {
          */
         init: function(){
 
-            Model.readJsonFile();           // Считываем данные
+            // Model.readJsonFile();           // Считываем данные
+            Model.readRandomData(1000);     // Заполним рандомными данными
             Model.setCurrentDate();         // Установим текущую дату
 
             View.createItemsYear();         // Создадим список годов
@@ -1183,6 +1214,9 @@ var Controller = {
 
             // Изменили value поиска
             View.inputSerach.addEventListener('keyup', Controller.keyupInputSerach);
+
+            // Обновление addEventListener для списка поиска
+            // Model.refreshItemSearch();
         },
     };
 

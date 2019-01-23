@@ -6,12 +6,6 @@ var FILE = JSON.stringify([
         "descr": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vehicula diam vel turpis convallis."
     },
     {
-        "date": "20190120",
-        "title": "День Рождения Отца!",
-        "users": "",
-        "descr": "Главное не забыть поздравить, никак в прошлый раз)"
-    },
-    {
         "date": "20190121",
         "title": "Lorem ipsum",
         "users": "Lorem ipsum dolor sit amet",
