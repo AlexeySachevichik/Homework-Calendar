@@ -74,7 +74,7 @@ var Random = {
     },
 
     descr: function(){
-        var none  = this.getRandomInt(0, 1);
+        var none = this.getRandomInt(0, 1);
 
         if(none == 1){
             var words = this.word();

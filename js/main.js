@@ -27,6 +27,7 @@ var View = {
      */
     inputSerach: document.getElementById('input-search'),
     resultSerach: document.getElementById('search-result'),
+    buttonCloseSearch: document.getElementById('sg-btn-close'),
     itemSearch: document.getElementsByClassName('sr-item'),
 
     /**
@@ -242,7 +243,7 @@ var View = {
     showPopupAdd: function(e){ // Показываем окно добавления записи
         var date = Model.getDateIndex( e.getAttribute('date-index'));
         var month = this.listMonths[ date[1] ];
-        this.headerAdd.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
+        this.headerAdd.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1) + ' ' + date[0];
 
         this.statusAdd.innerHTML = '';
         this.popupAdd.classList.add('active');
@@ -264,7 +265,7 @@ var View = {
         var month = this.listMonths[ date[1] ];
 
         this.headerEdit.innerHTML = event.title;
-        this.dateEdit.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1);
+        this.dateEdit.innerHTML = date[2] + ' ' + month[0].toUpperCase() + month.slice(1) + ' ' + date[0];
         this.inputUserEdit.value = '';
 
         if( event.users != '' ) {
@@ -338,24 +339,33 @@ var View = {
 
     showPopupMonth: function(){
         
-        View.popupMonth.classList.add('active');
+        this.popupMonth.classList.add('active');
     },
 
     hidePopupMonth: function(){
 
-        View.popupMonth.classList.remove('active');
+        this.popupMonth.classList.remove('active');
     },
 
     showPopupYear: function(){
         
-        View.popupYear.classList.add('active');
+        this.popupYear.classList.add('active');
     },
 
     hidePopupYear: function(){
 
-        View.popupYear.classList.remove('active');
+        this.popupYear.classList.remove('active');
+    },
+
+    showCancelSearch: function(){
+        this.buttonCloseSearch.classList.add('active');
+    },
+
+    hideCancelSearch: function(){
+        this.buttonCloseSearch.classList.remove('active');
     },
 };
+
 
 
 
@@ -453,7 +463,8 @@ var Model = {
     },
 
     getIndexDate: function(day){ // Преобразуем дату из массива в индекс
-        var m = ('' + day[1]).length == 1 ? '0' + (day[1] + 1) : day[1] + 1 ;
+        var t = day[1] + 1;
+        var m = ('' + t).length == 1 ? '0' + t : t ;
         var d = ('' + day[2]).length == 1 ? '0' + day[2] : day[2] ;
         return [day[0], m, d].join('');
     },
@@ -1027,9 +1038,17 @@ var Controller = {
 
         var result = Model.searchEvents( View.inputSerach.value );
 
+        if ( View.inputSerach.value == '' ){
+            View.hideCancelSearch();        // Скрыть "Х" в строке поиска
+        }
+        else {
+            View.showCancelSearch();       // Показать "Х" в строке поиска
+        }
+
         if( result ) {
             View.showSearchResult(result); // вывод результатов
             Model.refreshItemSearch();
+            
         }
         else {
             View.hideSearchResult(); // спрятать результаты
@@ -1049,6 +1068,7 @@ var Controller = {
         Model.setSelectedYear(day[0]);
 
         View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hideCancelSearch();        // Скрыть "Х" в строке поиска
         View.changeLableMonth();        // Поменяем название месяца
         View.changeLableYear();         // Поменяем номер года
         View.markItemMonth();           // Отметим месяц в списке
@@ -1064,6 +1084,11 @@ var Controller = {
             cell.parentNode.parentNode.getBoundingClientRect()
         );
         View.showPopupEdit(cell);        // Показываем окно редактирования
+    },
+
+    clickButtonCloseSearch: function(){
+        View.onfocusSearch();           // Уберем результаты поиска и очистим поле
+        View.hideCancelSearch();        // Скрыть "Х" в строке поиска
     },
 };
 
@@ -1217,6 +1242,9 @@ var Controller = {
 
             // Обновление addEventListener для списка поиска
             // Model.refreshItemSearch();
+            
+            // Нажали на "X" в троке поиска
+            View.buttonCloseSearch.addEventListener('click', Controller.clickButtonCloseSearch);
         },
     };
 
